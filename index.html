@@ -3,344 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitZone - Fitness & Wellness</title>
+    <title>Nexus - Digital Studio</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="particles-bg" aria-hidden="true"></div>
+    <div id="cube-bg" class="cube-bg" aria-hidden="true"></div>
+
     <nav class="navbar">
         <div class="container">
-            <a href="#" class="logo">FIT<span>ZONE</span></a>
+            <a href="#" class="logo">NEX<span>US</span></a>
             <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#programmi">Programmi</a></li>
-                <li><a href="#orari">Orari</a></li>
-                <li><a href="#galleria">Galleria</a></li>
-                <li><a href="#webcam">Webcam</a></li>
-                <li><a href="#prezzi">Prezzi</a></li>
+                <li><a href="#servizi">Servizi</a></li>
+                <li><a href="#lavori">Lavori</a></li>
+                <li><a href="#chi-siamo">Chi Siamo</a></li>
+                <li><a href="#testimonianze">Testimonianze</a></li>
                 <li><a href="#contatti">Contatti</a></li>
             </ul>
-            <button class="btn btn-primary menu-cta">Inizia Ora</button>
+            <button class="nav-toggle" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </nav>
 
-    <header id="home" class="hero">
-        <div class="hero-bg" aria-hidden="true"></div>
-        <div class="hero-overlay"></div>
-        <div class="container">
-            <h1>FORGIA IL TUO <span class="highlight">MIGLIOR SÉ</span></h1>
-            <p>Fitness, benessere e allenamento con i migliori personal trainer. Raggiungi i tuoi obiettivi con noi.</p>
+    <header class="hero">
+        <div class="hero-content">
+            <p class="hero-label">Nexus Digital Studio &mdash; Milano</p>
+            <h1 class="hero-title">
+                <span class="hero-word">Trasformiamo</span>
+                <span class="hero-word">idee in</span>
+                <span class="hero-word hero-word-accent" data-scramble>esperienze digitali</span>
+                <span class="hero-word">che lasciano</span>
+                <span class="hero-word">il segno.</span>
+            </h1>
+            <p class="hero-desc">Design, sviluppo e strategia per brand che vogliono distinguersi nel mondo digitale.</p>
             <div class="hero-buttons">
-                <a href="#prezzi" class="btn btn-primary">Unisciti a Noi</a>
-                <a href="#galleria" class="btn btn-secondary">Vedi la Palestra</a>
-            </div>
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <span class="number">500+</span>
-                    <span>Membri Attivi</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="number">25+</span>
-                    <span>Personal Trainer</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="number">24/7</span>
-                    <span>Apertura</span>
-                </div>
+                <a href="#contatti" class="btn btn-ice">Inizia un Progetto</a>
+                <a href="#lavori" class="btn btn-ice-outline">Vedi i Lavori</a>
             </div>
         </div>
+        <p class="hero-scroll">scroll</p>
     </header>
 
-    <section id="programmi" class="programs">
+    <section id="servizi" class="section services">
         <div class="container">
-            <h2 class="section-title">I Nostri <span class="highlight">Programmi</span></h2>
-            <div class="programs-grid">
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Bodybuilding" loading="lazy">
+            <p class="section-label">Cosa Facciamo</p>
+            <h2 class="section-title">Servizi progettati per <span class="gradient-text">eccellere</span></h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-img">
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80" alt="UI/UX Design" loading="lazy">
                     </div>
-                    <h3>Bodybuilding</h3>
-                    <p>Costruisci massa muscolare con allenamenti di forza mirati.</p>
+                    <div class="service-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                    </div>
+                    <h3>UI/UX Design</h3>
+                    <p>Interfacce intuitive e visivamente coinvolgenti. Dalla research all'ultimo pixel, progettiamo esperienze che gli utenti amano.</p>
                 </div>
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Cardio" loading="lazy">
+                <div class="service-card">
+                    <div class="service-img">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80" alt="Sviluppo Web" loading="lazy">
                     </div>
-                    <h3>Cardio & HIIT</h3>
-                    <p>Brucia calorie e migliora la resistenza con sessioni ad alta intensità.</p>
+                    <div class="service-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <h3>Sviluppo Web</h3>
+                    <p>Siti e applicazioni web moderne, performanti e responsive. Codice pulito, architettura solida, risultati misurabili.</p>
                 </div>
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80" alt="Yoga" loading="lazy">
+                <div class="service-card">
+                    <div class="service-img">
+                        <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80" alt="Branding" loading="lazy">
                     </div>
-                    <h3>Yoga & Wellness</h3>
-                    <p>Migliora postura, equilibrio e mobilità con pratiche guidate e relax.</p>
+                    <div class="service-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h3>Branding</h3>
+                    <p>Identita visiva memorabile che racconta la storia del tuo brand. Logo, palette, tipografia e guidelines complete.</p>
                 </div>
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1544033527-b192daee1f5b?w=600&q=80" alt="Cross Training" loading="lazy">
+                <div class="service-card">
+                    <div class="service-img">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80" alt="Strategia Digitale" loading="lazy">
                     </div>
-                    <h3>Cross Training</h3>
-                    <p>Allenamenti funzionali completi per tutto il corpo.</p>
-                </div>
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80" alt="Nutrizione" loading="lazy">
+                    <div class="service-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                     </div>
-                    <h3>Nutrizione</h3>
-                    <p>Piani alimentari personalizzati per potenziare i tuoi risultati.</p>
-                </div>
-                <div class="program-card">
-                    <div class="program-img">
-                        <img src="https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?w=600&q=80" alt="Personal Training" loading="lazy">
-                    </div>
-                    <h3>Personal Training</h3>
-                    <p>Sessioni individuali con trainer dedicati al tuo percorso.</p>
+                    <h3>Strategia Digitale</h3>
+                    <p>SEO, social media marketing e campagne advertising. Dati e creativita per massimizzare il ROI della tua presenza online.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="orari" class="schedule">
+    <section id="lavori" class="section works">
         <div class="container">
-            <h2 class="section-title">Orari <span class="highlight">delle Classi</span></h2>
-            <div class="schedule-table">
-                <div class="schedule-row schedule-header">
-                    <span>Orario</span>
-                    <span>Lunedì</span>
-                    <span>Martedì</span>
-                    <span>Mercoledì</span>
-                    <span>Giovedì</span>
-                    <span>Venerdì</span>
-                    <span>Sabato</span>
+            <p class="section-label">Portfolio</p>
+            <h2 class="section-title">I nostri <span class="gradient-text">migliori lavori</span></h2>
+            <div class="works-grid">
+                <div class="work-card work-wide">
+                    <div class="work-img" style="background-image: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80');"></div>
+                    <div class="work-info">
+                        <span class="work-tag">E-commerce</span>
+                        <h3>Luxe Store</h3>
+                        <p>Piattaforma e-commerce di lusso con design minimalista e checkout ottimizzato.</p>
+                    </div>
                 </div>
-                <div class="schedule-row">
-                    <span class="time">10:00<br>11:00</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="class-cell">Cross Training<br><small>Alessia D.</small></span>
+                <div class="work-card">
+                    <div class="work-img" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80');"></div>
+                    <div class="work-info">
+                        <span class="work-tag">Mobile App</span>
+                        <h3>FitTrack</h3>
+                        <p>App di fitness con gamification e tracciamento avanzato.</p>
+                    </div>
                 </div>
-                <div class="schedule-row">
-                    <span class="time">11:00<br>12:00</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="class-cell">Body Combat<br><small>Marco R.</small></span>
+                <div class="work-card">
+                    <div class="work-img" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80');"></div>
+                    <div class="work-info">
+                        <span class="work-tag">SaaS</span>
+                        <h3>CloudSync</h3>
+                        <p>Dashboard analytics per enterprises con data visualization.</p>
+                    </div>
                 </div>
-                <div class="schedule-row">
-                    <span class="time">18:00<br>19:00</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="class-cell">Full Body HIIT<br><small>Luca F.</small></span>
-                    <span class="empty">—</span>
+                <div class="work-card">
+                    <div class="work-img" style="background-image: url('https://images.unsplash.com/photo-1545239351-ef35f43d514b?w=800&q=80');"></div>
+                    <div class="work-info">
+                        <span class="work-tag">Branding</span>
+                        <h3>EcoVerse</h3>
+                        <p>Rebranding completo per startup green tech.</p>
+                    </div>
                 </div>
-                <div class="schedule-row">
-                    <span class="time">18:00<br>19:30</span>
-                    <span class="class-cell">Petto & Tricipiti<br><small>Marco R.</small></span>
-                    <span class="class-cell">Schiena & Bicipiti<br><small>Giulia T.</small></span>
-                    <span class="class-cell">Spalle & Core<br><small>Marco R.</small></span>
-                    <span class="class-cell">Gambe & Glutei<br><small>Sara B.</small></span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                </div>
-                <div class="schedule-row">
-                    <span class="time">19:30<br>20:15</span>
-                    <span class="empty">—</span>
-                    <span class="class-cell">Cardio & HIIT<br><small>Luca F.</small></span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                </div>
-                <div class="schedule-row">
-                    <span class="time">19:30<br>20:30</span>
-                    <span class="class-cell">Yoga & Wellness<br><small>Sara B.</small></span>
-                    <span class="empty">—</span>
-                    <span class="class-cell">Cross Training<br><small>Alessia D.</small></span>
-                    <span class="class-cell">Yoga & Relax<br><small>Giulia T.</small></span>
-                    <span class="empty">—</span>
-                    <span class="empty">—</span>
-                </div>
-            </div>
-            <p class="schedule-legend">Le classi sono organizzate per fascia oraria. Guarda la colonna del giorno che ti interessa per trovare l'allenamento giusto al momento giusto.</p>
-        </div>
-    </section>
-
-    <section id="galleria" class="gallery">
-        <div class="container">
-            <h2 class="section-title">La Nostra <span class="highlight">Palestra</span></h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80" alt="Area pesi" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800&q=80" alt="Area cardio" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80" alt="Allenamento fitness" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1576678927484-cc907957088c?w=800&q=80" alt="Wellness e relax" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&q=80" alt="Allenamento funzionale" loading="lazy">
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=800&q=80" alt="Yoga wellness" loading="lazy">
+                <div class="work-card work-wide">
+                    <div class="work-img" style="background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=80');"></div>
+                    <div class="work-info">
+                        <span class="work-tag">Web App</span>
+                        <h3>MusicHub</h3>
+                        <p>Piattaforma di streaming musicale con player audio custom e social features.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="prezzi" class="pricing">
+    <section class="section stats-section">
+        <div class="stats-bg"></div>
         <div class="container">
-            <h2 class="section-title">Piani di <span class="highlight">Abbonamento</span></h2>
-            <div class="pricing-grid">
-                <div class="price-card">
-                    <h3>Base</h3>
-                    <div class="price">€29<span>/mese</span></div>
-                    <ul>
-                        <li>Accesso alla palestra</li>
-                        <li>Spogliatoi e docce</li>
-                        <li>App di allenamento</li>
-                    </ul>
-                    <button class="btn btn-primary">Scegli Base</button>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" data-target="150">0</span><span class="stat-suffix">+</span>
+                    <span class="stat-label">Progetti Completati</span>
                 </div>
-                <div class="price-card featured">
-                    <h3>Pro</h3>
-                    <div class="price">€49<span>/mese</span></div>
-                    <ul>
-                        <li>Tutto del piano Base</li>
-                        <li>2 personal training al mese</li>
-                        <li>Accesso a tutte le classi</li>
-                        <li>Piano nutrizionale</li>
-                    </ul>
-                    <button class="btn btn-primary">Scegli Pro</button>
-                    <span class="badge">Più Popolare</span>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="98">0</span><span class="stat-suffix">%</span>
+                    <span class="stat-label">Clienti Soddisfatti</span>
                 </div>
-                <div class="price-card">
-                    <h3>Elite</h3>
-                    <div class="price">€79<span>/mese</span></div>
-                    <ul>
-                        <li>Tutto del piano Pro</li>
-                        <li>Personal trainer illimitato</li>
-                        <li>Accesso VIP 24/7</li>
-                        <li>Spa e recupero wellness</li>
-                    </ul>
-                    <button class="btn btn-primary">Scegli Elite</button>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="12">0</span><span class="stat-suffix"></span>
+                    <span class="stat-label">Anni di Esperienza</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="35">0</span><span class="stat-suffix"></span>
+                    <span class="stat-label">Membri del Team</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="webcam" class="webcam-section">
+    <section id="chi-siamo" class="section about">
         <div class="container">
-            <h2 class="section-title">Allenati con la <span class="highlight">Webcam</span></h2>
-            <p class="contact-subtitle">Attiva la webcam per vedere il tuo corpo rilevato in tempo reale con l'intelligenza artificiale (ml5 BodyPose). Muoviti e osserva lo scheletro tracciato.</p>
-            <div class="webcam-box">
-                <div id="canvasContainer" class="webcam-canvas">
-                    <p class="webcam-placeholder">🎥 Premi il pulsante per attivare la webcam</p>
+            <div class="about-grid">
+                <div class="about-content">
+                    <p class="section-label">Chi Siamo</p>
+                    <h2 class="section-title">Uno studio digitale <span class="gradient-text">diverso dagli altri</span></h2>
+                    <p>Nexus nasce nel 2014 dalla passione di un team di designer e sviluppatori che credevano che il digitale potesse essere piu' umano. Oggi siamo un team di 35 professionisti che lavora con brand italiani e internazionali.</p>
+                    <p>Non siamo solo tecnici: siamo storyteller, strategi e problem solver. Ogni progetto e' un'opportunita' per creare qualcosa di unico.</p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <span class="feature-check">&#10003;</span>
+                            <span>Approccio agile e trasparente</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="feature-check">&#10003;</span>
+                            <span>Tecnologie all'avanguardia</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="feature-check">&#10003;</span>
+                            <span>Supporto post-lancio dedicato</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="webcam-actions">
-                    <button id="startCam" class="btn btn-primary">📷 Attiva Webcam</button>
-                    <button id="stopCam" class="btn btn-secondary" style="display:none;">⏹️ Ferma</button>
+                <div class="about-visual">
+                    <div class="about-photo">
+                        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&q=80" alt="Il team Nexus nel nostro studio" loading="lazy">
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card-inner">
+                            <span class="about-emoji">&#128640;</span>
+                            <h4>Mission</h4>
+                            <p>Rendere il digitale accessibile, bello e funzionale per ogni azienda.</p>
+                        </div>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-card-inner">
+                            <span class="about-emoji">&#128161;</span>
+                            <h4>Vision</h4>
+                            <p>Diventare il riferimento creativo per il made in Italy nel mondo tech.</p>
+                        </div>
+                    </div>
                 </div>
-                <p id="camStatus" class="webcam-status"></p>
             </div>
         </div>
     </section>
 
-    <section id="contatti" class="contact">
+    <section id="testimonianze" class="section testimonials">
         <div class="container">
-            <h2 class="section-title">Iscriviti e Ricevi il tuo <span class="highlight">Piano Personalizzato</span></h2>
-            <p class="contact-subtitle">Compila il modulo: generiamo automaticamente un piano di allenamento e un piano alimentare su misura per te.</p>
-            <form id="contactForm" class="contact-form">
-                <div class="form-group">
-                    <input type="text" id="name" placeholder="Nome" required>
+            <p class="section-label">Testimonianze</p>
+            <h2 class="section-title">Cosa dicono i <span class="gradient-text">nostri clienti</span></h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>"Nexus ha trasformato completamente la nostra presenza online. Il sito nuovo ha aumentato le conversioni del 40% in soli 3 mesi."</p>
+                    <div class="testimonial-author">
+                        <img class="author-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80" alt="Marco Bianchi" loading="lazy">
+                        <div>
+                            <strong>Marco Bianchi</strong>
+                            <span>CEO, TechVentures</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="email" id="email" placeholder="Email" required>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>"Professionali, creativi e puntuali. Hanno capito esattamente cosa volevamo e hanno superato le nostre aspettative."</p>
+                    <div class="testimonial-author">
+                        <img class="author-avatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80" alt="Laura Rossi" loading="lazy">
+                        <div>
+                            <strong>Laura Rossi</strong>
+                            <span>Fondatrice, Bloom Studio</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="tel" id="phone" placeholder="Telefono" required>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p>"La nostra app ha ricevuto recensioni entusiastiche dall'utente medio. Il design e' intuitivo e le performance sono eccellenti."</p>
+                    <div class="testimonial-author">
+                        <img class="author-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80" alt="Andrea Conti" loading="lazy">
+                        <div>
+                            <strong>Andrea Conti</strong>
+                            <span>CTO, GreenPath</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
+            </div>
+        </div>
+    </section>
+
+    <section id="contatti" class="section contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <p class="section-label">Contatti</p>
+                    <h2 class="section-title">Hai un progetto in mente? <span class="gradient-text">Parliamone.</span></h2>
+                    <p>Raccontaci la tua idea. Rispondiamo entro 24 ore con una proposta su misura.</p>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <span>hello@nexusstudio.it</span>
+                        </div>
+                        <div class="contact-detail">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                            <span>+39 02 1234 5678</span>
+                        </div>
+                        <div class="contact-detail">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>Via Torino 42, Milano</span>
+                        </div>
+                    </div>
+                    <div class="contact-photo">
+                        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80" alt="Il nostro studio a Milano" loading="lazy">
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
                     <div class="form-group">
-                        <label for="goal">Obiettivo</label>
-                        <select id="goal" required>
-                            <option value="">Seleziona obiettivo</option>
-                            <option value="loss">Perdita di peso</option>
-                            <option value="muscle">Massa muscolare</option>
-                            <option value="toning">Tonificazione</option>
+                        <input type="text" id="name" placeholder="Nome e Cognome" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <select id="service" required>
+                            <option value="" disabled selected>Servizio di interesse</option>
+                            <option value="design">UI/UX Design</option>
+                            <option value="dev">Sviluppo Web</option>
+                            <option value="brand">Branding</option>
+                            <option value="strategy">Strategia Digitale</option>
+                            <option value="other">Altro</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="level">Livello</label>
-                        <select id="level" required>
-                            <option value="">Seleziona livello</option>
-                            <option value="beginner">Principiante</option>
-                            <option value="intermediate">Intermedio</option>
-                            <option value="advanced">Avanzato</option>
-                        </select>
+                        <textarea id="message" rows="4" placeholder="Raccontaci il tuo progetto..." required></textarea>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="days">Giorni di allenamento a settimana</label>
-                    <select id="days" required>
-                        <option value="">Seleziona giorni</option>
-                        <option value="3">3 giorni</option>
-                        <option value="4">4 giorni</option>
-                        <option value="5">5 giorni</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="plan">
-                        <option value="">Seleziona un piano di abbonamento</option>
-                        <option value="base">Base</option>
-                        <option value="pro">Pro</option>
-                        <option value="elite">Elite</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Genera il mio Piano</button>
-            </form>
-
-            <div id="planResult" class="plan-result" style="display:none;">
-                <h3>Il Tuo <span class="highlight">Piano Personalizzato</span></h3>
-                <div class="plan-section">
-                    <h4>🏋️ Piano di Allenamento</h4>
-                    <div id="workoutPlan"></div>
-                </div>
-                <div class="plan-section">
-                    <h4>🥗 Piano Alimentare</h4>
-                    <div id="dietPlan"></div>
-                </div>
-                <div class="plan-actions">
-                    <button class="btn btn-primary" onclick="window.print()">🖨️ Stampa il Piano</button>
-                    <button class="btn btn-secondary" onclick="resetForm()">Nuova Iscrizione</button>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-full">Invia Messaggio</button>
+                    <p id="formSuccess" class="form-success" style="display:none;">Messaggio inviato! Ti contatteremo presto.</p>
+                </form>
             </div>
         </div>
     </section>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 FitZone Fitness Club. Tutti i diritti riservati.</p>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="https://images.unsplash.com/photo-1631700611307-37dbcb89ef7e?w=120&q=80" alt="Logo Nexus" loading="lazy">
+<a href="#" class="logo">
+                <img src="https://images.unsplash.com/photo-1631700611307-37dbcb89ef7e?w=120&q=80" alt="Logo Nexus" class="logo-img">NEX<span>US</span></a>
+                    </div>
+                    <p>Studio digitale kreativo. Design, sviluppo e strategia per brand che vogliono eccellere.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigazione</h4>
+                    <a href="#servizi">Servizi</a>
+                    <a href="#lavori">Portfolio</a>
+                    <a href="#chi-siamo">Chi Siamo</a>
+                    <a href="#contatti">Contatti</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Servizi</h4>
+                    <a href="#">UI/UX Design</a>
+                    <a href="#">Sviluppo Web</a>
+                    <a href="#">Branding</a>
+                    <a href="#">SEO & Marketing</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Seguici</h4>
+                    <a href="#">Instagram</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Dribbble</a>
+                    <a href="#">Twitter</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Nexus Digital Studio. Tutti i diritti riservati.</p>
+            </div>
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-    <script src="particles.js"></script>
-    <script src="bodypose.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="sketch.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

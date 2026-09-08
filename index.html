@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="particles-bg" aria-hidden="true"></div>
     <nav class="navbar">
         <div class="container">
             <a href="#" class="logo">FIT<span>ZONE</span></a>
@@ -17,6 +18,7 @@
                 <li><a href="#programmi">Programmi</a></li>
                 <li><a href="#orari">Orari</a></li>
                 <li><a href="#galleria">Galleria</a></li>
+                <li><a href="#webcam">Webcam</a></li>
                 <li><a href="#prezzi">Prezzi</a></li>
                 <li><a href="#contatti">Contatti</a></li>
             </ul>
@@ -240,6 +242,23 @@
         </div>
     </section>
 
+    <section id="webcam" class="webcam-section">
+        <div class="container">
+            <h2 class="section-title">Allenati con la <span class="highlight">Webcam</span></h2>
+            <p class="contact-subtitle">Attiva la webcam per vedere il tuo corpo rilevato in tempo reale con l'intelligenza artificiale (ml5 BodyPose). Muoviti e osserva lo scheletro tracciato.</p>
+            <div class="webcam-box">
+                <div id="canvasContainer" class="webcam-canvas">
+                    <p class="webcam-placeholder">🎥 Premi il pulsante per attivare la webcam</p>
+                </div>
+                <div class="webcam-actions">
+                    <button id="startCam" class="btn btn-primary">📷 Attiva Webcam</button>
+                    <button id="stopCam" class="btn btn-secondary" style="display:none;">⏹️ Ferma</button>
+                </div>
+                <p id="camStatus" class="webcam-status"></p>
+            </div>
+        </div>
+    </section>
+
     <section id="contatti" class="contact">
         <div class="container">
             <h2 class="section-title">Iscriviti e Ricevi il tuo <span class="highlight">Piano Personalizzato</span></h2>
@@ -318,6 +337,10 @@
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <script src="particles.js"></script>
+    <script src="bodypose.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

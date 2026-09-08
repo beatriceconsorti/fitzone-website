@@ -226,7 +226,7 @@ body {
 /* Programs */
 .programs {
     padding: 100px 0;
-    background: var(--black);
+    background: rgba(10, 10, 10, 0.92);
 }
 
 .section-title {
@@ -305,7 +305,7 @@ body {
 /* Schedule */
 .schedule {
     padding: 100px 0;
-    background: var(--black-light);
+    background: rgba(22, 22, 22, 0.92);
 }
 
 .schedule-table {
@@ -408,7 +408,7 @@ body {
 /* Gallery */
 .gallery {
     padding: 100px 0;
-    background: var(--black-light);
+    background: rgba(22, 22, 22, 0.92);
 }
 
 .gallery-grid {
@@ -456,7 +456,7 @@ body {
 /* Pricing */
 .pricing {
     padding: 100px 0;
-    background: var(--black);
+    background: rgba(10, 10, 10, 0.92);
 }
 
 .pricing-grid {
@@ -542,7 +542,7 @@ body {
 /* Contact */
 .contact {
     padding: 100px 0;
-    background: var(--black-light);
+    background: rgba(22, 22, 22, 0.92);
 }
 
 .contact-form {
@@ -699,6 +699,85 @@ body {
     gap: 1rem;
     margin-top: 2rem;
     justify-content: center;
+}
+
+/* Webcam section */
+.webcam-section {
+    padding: 100px 0;
+    background: rgba(10, 10, 10, 0.92);
+    position: relative;
+    overflow: hidden;
+}
+
+.webcam-box {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.webcam-canvas {
+    background: var(--black-card);
+    border: 2px solid rgba(250, 204, 21, 0.3);
+    border-radius: 12px;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.webcam-canvas canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.webcam-placeholder {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+.webcam-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.webcam-status {
+    margin-top: 1rem;
+    color: var(--gray);
+    font-size: 0.95rem;
+    min-height: 1.5rem;
+}
+
+/* Sfondo particelle (p5) */
+#particles-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#particles-bg canvas {
+    position: absolute;
+    inset: 0;
+}
+
+/* Le sezioni sopra le particelle */
+.navbar,
+.hero,
+.programs,
+.schedule,
+.gallery,
+.pricing,
+.webcam-section,
+.contact,
+.footer {
+    position: relative;
+    z-index: 1;
 }
 
 /* Footer */

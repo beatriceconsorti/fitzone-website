@@ -36,11 +36,14 @@
     if (s) s.setItem(STORAGE_KEY, JSON.stringify(mem));
   }
 
+  function isSlotUnavailable(slotId, takenIds, demoSlotId) {
+    return takenIds.indexOf(slotId) !== -1 || (takenIds.length === 0 && slotId === demoSlotId);
+  }
+
   function mount(el, now) {
     if (!el || !Booking) return;
     const slots = Booking.buildSlots(now || new Date());
-    const stored = readTaken();
-    const demoTaken = stored.length ? stored : [slots[2] && slots[2].id];
+    const demoSlotId = slots[2] && slots[2].id;
     let selected = '';
 
     el.innerHTML =
@@ -59,18 +62,14 @@
     const msg = el.querySelector('.booking-msg');
 
     function paint() {
+      const taken = readTaken();
       grid.innerHTML = '';
       slots.forEach(function (slot) {
-        const taken = demoTaken.indexOf(slot.id) !== -1 && stored.indexOf(slot.id) !== -1
-          ? true
-          : demoTaken.indexOf(slot.id) !== -1 && stored.length === 0
-            ? true
-            : stored.indexOf(slot.id) !== -1;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'slot-btn';
         btn.dataset.slotId = slot.id;
-        const unavailable = stored.indexOf(slot.id) !== -1 || (stored.length === 0 && slot.id === demoTaken[0]);
+        const unavailable = isSlotUnavailable(slot.id, taken, demoSlotId);
         btn.disabled = unavailable;
         btn.textContent = unavailable ? slot.label + ' (Non disponibile)' : slot.label;
         btn.setAttribute('aria-pressed', selected === slot.id ? 'true' : 'false');
@@ -89,7 +88,8 @@
       e.preventDefault();
       const name = form.elements.name.value;
       const email = form.elements.email.value;
-      const takenIds = readTaken().concat(stored.length === 0 ? demoTaken : []);
+      const currentTaken = readTaken();
+      const takenIds = currentTaken.length ? currentTaken : (demoSlotId ? [demoSlotId] : []);
       const result = Booking.validateBooking({
         name: name,
         email: email,
@@ -103,15 +103,12 @@
         msg.textContent = result.error;
         return;
       }
-      const nextTaken = readTaken().concat([selected]);
-      writeTaken(nextTaken);
-      demoTaken.length = 0;
-      nextTaken.forEach(function (id) { demoTaken.push(id); });
+      writeTaken(readTaken().concat([selected]));
       msg.className = 'booking-msg is-ok';
       msg.textContent = Booking.confirmMessage(selected);
       paint();
     });
   }
 
-  return { STORAGE_KEY, readTaken, writeTaken, mount };
+  return { STORAGE_KEY, readTaken, writeTaken, isSlotUnavailable, mount };
 }));

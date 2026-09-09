@@ -3,23 +3,23 @@
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const canvas = document.getElementById('fx-canvas');
+  const canvas = document.getElementById('fx-mid');
   if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-  const BLOB_COUNT = window.innerWidth > 1200 ? 6 : window.innerWidth > 700 ? 4 : 3;
+  const BLOB_COUNT = window.innerWidth > 1200 ? 3 : window.innerWidth > 700 ? 2 : 1;
   const COLORS = [
-    'rgba(20,20,20,0.22)',
-    'rgba(255,77,0,0.28)',
-    'rgba(58,58,56,0.20)',
-    'rgba(20,20,20,0.18)'
+    'rgba(20,20,20,0.20)',
+    'rgba(255,77,0,0.26)',
+    'rgba(58,58,56,0.18)',
+    'rgba(20,20,20,0.16)'
   ];
-  const INFLUENCE = 260;
-  const STRENGTH = 90;
-  const OPPOSITE_STRENGTH = 28;
-  const WIGGLE = 4;
+  const INFLUENCE = 340;
+  const STRENGTH = 130;
+  const OPPOSITE_STRENGTH = 42;
+  const WIGGLE = 3;
 
   let W = 0, H = 0, DOC_H = 0;
   const mouse = { x: -1000, y: -1000 };
@@ -30,10 +30,13 @@
   }
 
   function makeBlob() {
-    const r = 90 + Math.random() * 90;
-    const x = r + Math.random() * Math.max(W - r * 2, 1);
-    const y = r + Math.random() * Math.max(DOC_H - r * 2, 1);
-    const n = 22;
+    const r = 150 + Math.random() * 110;
+    const margin = r + 40;
+    const x = margin + Math.random() * Math.max(W - margin * 2, 1);
+    const mid = DOC_H / 2;
+    const spread = DOC_H * 0.35;
+    const y = Math.max(margin, Math.min(DOC_H - margin, mid + (Math.random() - 0.5) * spread));
+    const n = 24;
     const verts = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
@@ -48,7 +51,7 @@
     blobs.length = 0;
     DOC_H = docHeight();
     for (let i = 0; i < BLOB_COUNT; i++) blobs.push(makeBlob());
-    window.__azimuthBlobs = blobs;
+    window.__azimuthMidBlobs = blobs;
   }
 
   function onPointer(e) {
@@ -107,8 +110,8 @@
       drawBlob(points);
       ctx.closePath();
       ctx.fillStyle = b.color;
-      ctx.shadowColor = 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = 24;
+      ctx.shadowColor = 'rgba(0,0,0,0.12)';
+      ctx.shadowBlur = 30;
       ctx.fill();
       ctx.shadowBlur = 0;
       ctx.restore();

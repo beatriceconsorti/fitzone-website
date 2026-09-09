@@ -390,35 +390,21 @@ main {
 .project-visual {
   aspect-ratio: 16 / 10;
   border-radius: 12px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.2rem;
   overflow: hidden;
+  position: relative;
   transition: transform .6s cubic-bezier(.7, 0, .3, 1);
 }
-.project-visual span {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.3rem;
-  letter-spacing: .06em;
-  color: rgba(255, 255, 255, .9);
-  border: 1px solid rgba(255, 255, 255, .35);
-  padding: .5rem 1rem;
-  border-radius: 999px;
+.project-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(100%) contrast(110%);
+  transition: filter .6s ease;
 }
-.project-visual::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 60%);
-  opacity: .6;
+.project:hover .project-visual img {
+  filter: grayscale(0%) contrast(100%);
 }
-.n1 { background: linear-gradient(135deg, #1f2937, #374151); }
-.n2 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
-.n3 { background: linear-gradient(135deg, #0c4a6e, #0ea5e9); }
-.n4 { background: linear-gradient(135deg, #14532d, #16a34a); }
 .project-year {
   text-align: right;
   font-size: .85rem;
@@ -431,8 +417,24 @@ main {
 }
 
 /* ---------- About ---------- */
-.about { padding-bottom: 8rem; }
+.about { position: relative; overflow: hidden; padding-bottom: 8rem; }
+.about-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.about-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(100%);
+}
 .about-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: 4rem;

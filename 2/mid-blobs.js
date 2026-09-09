@@ -9,7 +9,7 @@
   const ctx = canvas.getContext('2d');
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-  const BLOB_COUNT = window.innerWidth > 1200 ? 3 : window.innerWidth > 700 ? 2 : 1;
+  const BLOB_COUNT = window.innerWidth > 1200 ? 8 : window.innerWidth > 700 ? 5 : 3;
   const COLORS = [
     'rgba(20,20,20,0.20)',
     'rgba(255,77,0,0.26)',
@@ -30,13 +30,12 @@
   }
 
   function makeBlob() {
-    const r = 150 + Math.random() * 110;
+    const r = 120 + Math.random() * 100;
     const margin = r + 40;
     const x = margin + Math.random() * Math.max(W - margin * 2, 1);
-    const mid = DOC_H / 2;
-    const spread = DOC_H * 0.35;
-    const y = Math.max(margin, Math.min(DOC_H - margin, mid + (Math.random() - 0.5) * spread));
-    const n = 24;
+    const y = margin + Math.random() * Math.max(DOC_H - margin * 2, 1);
+    const isTriangle = Math.random() < 0.3;
+    const n = isTriangle ? 3 : 20 + Math.floor(Math.random() * 8);
     const verts = [];
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;

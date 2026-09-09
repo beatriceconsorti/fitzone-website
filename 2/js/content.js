@@ -85,7 +85,7 @@
       name: 'Matteo Rhee',
       role: 'Motion e interazione',
       bio: 'Progetta il movimento e i momenti in cui il sito risponde. Cerca il gesto giusto, non l\u2019effetto più rumoroso.',
-      photo: 'https://images.unsplash.com/photo-1500648767791-11d2b0d4d0ad?w=640&q=80'
+      photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=640&q=80'
     },
     {
       id: 'sofia',

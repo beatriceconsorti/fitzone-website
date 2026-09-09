@@ -544,7 +544,8 @@ a.project { color: inherit; }
 @media (max-width: 768px) {
   #cursor { display: none; }
   body { cursor: auto; }
-  .nav { gap: 1.2rem; }
+  .nav { gap: 0.8rem; }
+  .nav-link { font-size: .8rem; letter-spacing: .1em; }
 }
 
 /* ---------- Inner pages (no canvas spectacle) ---------- */

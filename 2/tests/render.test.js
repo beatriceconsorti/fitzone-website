@@ -57,6 +57,10 @@ describe('AzimuthRender', () => {
     assert.ok(html.includes('materia-festival.html'));
     assert.ok(html.includes('Questo tipo di lavoro vi serve?'));
     assert.equal((html.match(/<figure/g) || []).length, p.gallery.length);
+    assert.ok(html.includes(' loading="lazy"'));
+    const firstAlt = p.gallery[0].alt;
+    assert.ok(html.includes('alt="' + firstAlt + '" loading="lazy"'));
+    assert.ok(!html.includes('alt="' + firstAlt + ' loading="lazy"'));
   });
 
   it('notFound punta a Work e Studio', () => {

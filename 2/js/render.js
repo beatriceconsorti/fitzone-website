@@ -111,7 +111,7 @@
       return '<li>' + escapeHtml(d) + '</li>';
     }).join('');
     const figs = project.gallery.map(function (g) {
-      return '<figure><img src="' + escapeHtml(g.src) + '" alt="' + escapeHtml(g.alt) + ' loading="lazy"><figcaption>' + escapeHtml(g.caption) + '</figcaption></figure>';
+      return '<figure><img src="' + escapeHtml(g.src) + '" alt="' + escapeHtml(g.alt) + '" loading="lazy"><figcaption>' + escapeHtml(g.caption) + '</figcaption></figure>';
     }).join('');
     return (
       '<header class="case-hero">' +

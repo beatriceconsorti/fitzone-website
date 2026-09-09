@@ -616,7 +616,7 @@ main {
   margin-bottom: .5rem;
 }
 .svc p { color: var(--muted); line-height: 1.55; font-size: .95rem; }
-.svc-delivers { margin-top: .6rem; color: var(--ink); }
+.svc p.svc-delivers { margin-top: .6rem; color: var(--ink); }
 .phase-preview { list-style: none; }
 .phase-preview li {
   padding: .7rem 0;

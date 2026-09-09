@@ -32,20 +32,13 @@
 
   document.body.style.overflow = 'hidden';
 
-  /* Cursor */
-  const cursor = document.getElementById('cursor');
-  const cursorLabel = document.getElementById('cursor-label');
-  let cx = innerWidth / 2, cy = innerHeight / 2;
-  let mx = cx, my = cy;
-
+  let mx = innerWidth / 2, my = innerHeight / 2;
   let heroCharsCache = null;
   function colorizeHeroTitle() {
     if (!heroCharsCache) heroCharsCache = document.querySelectorAll('.hero-title .char');
     if (!heroCharsCache.length) return;
-
     const palette = ['var(--accent)', 'var(--muted)', 'var(--ink)'];
     const R = 220;
-
     for (const ch of heroCharsCache) {
       const rect = ch.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -60,29 +53,7 @@
       }
     }
   }
-
   addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; colorizeHeroTitle(); }, { passive: true });
-
-  const loop = () => {
-    cx += (mx - cx) * 0.18;
-    cy += (my - cy) * 0.18;
-    cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
-    requestAnimationFrame(loop);
-  };
-  loop();
-
-  const hoverables = document.querySelectorAll('a, .project, .project-visual, .nav-link');
-  hoverables.forEach((el) => {
-    el.addEventListener('mouseenter', () => {
-      cursor.classList.add('grow');
-      const label = el.getAttribute('data-cursor') || el.getAttribute('data-label') || '';
-      cursorLabel.textContent = label;
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.classList.remove('grow');
-      cursorLabel.textContent = '';
-    });
-  });
 
   /* Reveal on scroll */
   const h1 = document.querySelector('.hero-title');
@@ -126,7 +97,7 @@
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.sec-title, .about-lead, .contact-title, .mail-link, .btn-hero, .hero-sub, .about-cols, .project').forEach((el) => {
+  document.querySelectorAll('.sec-title, .about-lead, .contact-title, .mail-link, .btn-hero, .hero-sub, .about-cols, .project, #sintesi, .svc, .person-card, .channels').forEach((el) => {
     el.setAttribute('data-reveal', '');
     io.observe(el);
   });
@@ -134,19 +105,6 @@
   const projects = document.querySelectorAll('.project');
   projects.forEach((p) => {
     p.setAttribute('data-cursor', 'Vedi caso');
-    p.addEventListener('click', () => {
-      cursor.textContent = '';
-    });
-  });
-
-  /* Smooth anchor scrolling (wheel-based horizontal feel is replaced by graceful vertical) */
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
-    a.addEventListener('click', (e) => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (!target) return;
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
-    });
   });
 
   /* Animated accent on scroll for project rows */

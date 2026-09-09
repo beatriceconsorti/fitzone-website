@@ -367,6 +367,7 @@ main {
   position: relative;
   transition: padding-left .5s cubic-bezier(.7, 0, .3, 1);
 }
+a.project { color: inherit; }
 .project:hover { padding-left: 1.5rem; }
 .project:hover .project-visual { transform: scale(1.03); }
 .project-num {

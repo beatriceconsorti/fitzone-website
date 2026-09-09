@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body data-page="home">
 
   <canvas id="fx-canvas" aria-hidden="true"></canvas>
 
@@ -31,7 +31,7 @@
     <a href="#hero" class="logo">Studio<span>Azimuth</span></a>
     <nav class="nav">
       <a href="#work" class="nav-link" data-label="Work">Work</a>
-      <a href="#about" class="nav-link" data-label="Studio">Studio</a>
+      <a href="studio.html" class="nav-link" data-label="Studio">Studio</a>
       <a href="#contact" class="nav-link" data-label="Contatti">Contatti</a>
     </nav>
   </header>
@@ -62,13 +62,22 @@
       </div>
     </section>
 
+    <section id="sintesi" class="section about">
+      <div class="sec-head">
+        <p class="sec-index">02 / Chi siamo</p>
+        <h2 class="sec-title">Studio</h2>
+      </div>
+      <p class="about-lead">Sintesi per chi valuta un lavoro: cosa facciamo, come collaboriamo, chi c’è.</p>
+      <div id="sintesi-root"></div>
+    </section>
+
     <section id="work" class="section work">
       <div class="sec-head">
         <p class="sec-index">01 / Selezionati</p>
         <h2 class="sec-title">Progetti</h2>
       </div>
 
-      <article class="project" data-project>
+      <a class="project" data-project href="work/nebula-commerce.html" data-cursor="Vedi caso">
         <div class="project-num">01</div>
         <div class="project-info">
           <h3>Nebula Commerce</h3>
@@ -76,9 +85,9 @@
         </div>
         <div class="project-visual"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" alt="Nebula Commerce" loading="lazy"></div>
         <div class="project-year">2024</div>
-      </article>
+      </a>
 
-      <article class="project" data-project>
+      <a class="project" data-project href="work/materia-festival.html" data-cursor="Vedi caso">
         <div class="project-num">02</div>
         <div class="project-info">
           <h3>Materia Festival</h3>
@@ -86,9 +95,9 @@
         </div>
         <div class="project-visual"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&q=80" alt="Materia Festival" loading="lazy"></div>
         <div class="project-year">2024</div>
-      </article>
+      </a>
 
-      <article class="project" data-project>
+      <a class="project" data-project href="work/orbit-playground.html" data-cursor="Vedi caso">
         <div class="project-num">03</div>
         <div class="project-info">
           <h3>Orbit Playground</h3>
@@ -96,9 +105,9 @@
         </div>
         <div class="project-visual"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt="Orbit Playground" loading="lazy"></div>
         <div class="project-year">2023</div>
-      </article>
+      </a>
 
-      <article class="project" data-project>
+      <a class="project" data-project href="work/archive-id.html" data-cursor="Vedi caso">
         <div class="project-num">04</div>
         <div class="project-info">
           <h3>Archive ID</h3>
@@ -106,37 +115,7 @@
         </div>
         <div class="project-visual"><img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80" alt="Archive ID" loading="lazy"></div>
         <div class="project-year">2023</div>
-      </article>
-    </section>
-
-    <section id="about" class="section about">
-      <div class="about-bg" aria-hidden="true"><img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80" alt=""></div>
-      <div class="sec-head">
-        <p class="sec-index">02 / Chi siamo</p>
-        <h2 class="sec-title">Studio</h2>
-      </div>
-      <div class="about-grid">
-        <p class="about-lead">Studio Azimuth è un collettivo di designer e sviluppatori creativi. Uniamo grafica, motion e codice per costruire esperienze che si ricordano.</p>
-        <div class="about-cols">
-          <div>
-            <h4>Cosa facciamo</h4>
-            <ul class="list">
-              <li>Siti web interattivi</li>
-              <li>Design d'interazione</li>
-              <li>Motion &amp; WebGL</li>
-              <li>Brand identity</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Riconoscimenti</h4>
-            <ul class="list">
-              <li>Awwwards — SOTD x6</li>
-              <li>FWA — of the Day x9</li>
-              <li>CSS Design Awards</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      </a>
     </section>
 
     <section id="contact" class="section contact">
@@ -144,23 +123,31 @@
         <p class="sec-index">03 / Parliamo</p>
       </div>
       <h2 class="contact-title">Hai un'idea?<br>Raccontacela.</h2>
-      <a class="mail-link" href="mailto:hello@studioazimuth.it" data-hover>hello@studioazimuth.it</a>
+      <div id="contact-channels"></div>
       <div class="contact-footer">
         <div class="social">
-          <a href="#" data-hover>Instagram</a>
-          <a href="#" data-hover>Behance</a>
-          <a href="#" data-hover>Dribbble</a>
-          <a href="#" data-hover>LinkedIn</a>
+          <a href="#" data-hover data-placeholder-social>Instagram</a>
+          <a href="#" data-hover data-placeholder-social>Behance</a>
+          <a href="#" data-hover data-placeholder-social>Dribbble</a>
+          <a href="#" data-hover data-placeholder-social>LinkedIn</a>
         </div>
         <p>&copy; 2024 Studio Azimuth — Milano<br>Progettato e sviluppato in-house.</p>
       </div>
     </section>
   </main>
 
+  <script src="js/content.js"></script>
+  <script src="js/contact-links.js"></script>
+  <script src="js/booking.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/booking-ui.js"></script>
+  <script src="js/site-chrome.js"></script>
+  <script src="js/hydrate.js"></script>
   <script src="blobs.js"></script>
   <script src="script.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script src="falling-balls.js"></script>
   <script src="mid-blobs.js"></script>
+  <script src="shapes.js"></script>
 </body>
 </html>

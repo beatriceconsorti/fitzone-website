@@ -3,7 +3,6 @@
   const C = window.AzimuthContent;
   const L = window.AzimuthContactLinks;
   const R = window.AzimuthRender;
-  const UI = window.AzimuthBookingUI;
   const Chrome = window.AzimuthChrome;
   if (!C || !L || !R) return;
 
@@ -22,6 +21,13 @@
         phases: C.PROCESS_PHASES,
         people: C.PEOPLE,
         studioHref: 'studio.html'
+      });
+    }
+    const w = document.getElementById('work-root');
+    if (w) {
+      w.innerHTML = R.homeWork({
+        projects: C.PROJECTS,
+        workBase: 'work/'
       });
     }
     const ch = document.getElementById('contact-channels');
@@ -63,8 +69,6 @@
     }
   }
 
-  document.querySelectorAll('[data-booking]').forEach(function (el) {
-    if (UI) UI.mount(el);
-  });
   if (Chrome) Chrome.init();
+  if (window.AzimuthHeroColor) AzimuthHeroColor.init();
 })();

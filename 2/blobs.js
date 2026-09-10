@@ -9,12 +9,12 @@
   const ctx = canvas.getContext('2d');
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
-  const BLOB_COUNT = window.innerWidth > 1200 ? 6 : window.innerWidth > 700 ? 4 : 3;
+  const BLOB_COUNT = window.innerWidth > 1200 ? 3 : window.innerWidth > 700 ? 2 : 1;
   const COLORS = [
-    'rgba(20,20,20,0.22)',
-    'rgba(255,77,0,0.28)',
-    'rgba(58,58,56,0.20)',
-    'rgba(20,20,20,0.18)'
+    'rgba(20,20,20,0.12)',
+    'rgba(255,77,0,0.16)',
+    'rgba(58,58,56,0.10)',
+    'rgba(20,20,20,0.10)'
   ];
   const INFLUENCE = 260;
   const STRENGTH = 90;
@@ -30,7 +30,7 @@
   }
 
   function makeBlob() {
-    const r = 90 + Math.random() * 90;
+    const r = 80 + Math.random() * 70;
     const x = r + Math.random() * Math.max(W - r * 2, 1);
     const y = r + Math.random() * Math.max(DOC_H - r * 2, 1);
     const n = 22;

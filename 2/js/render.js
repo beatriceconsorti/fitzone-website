@@ -28,10 +28,6 @@
           '<li><a class="channel" href="' + tel + '">Telefono<span>' + escapeHtml(contact.phoneDisplay) + '</span></a></li>' +
           '<li><a class="channel" href="' + wa + '" target="_blank" rel="noopener noreferrer">WhatsApp<span>' + escapeHtml(contact.phoneDisplay) + '</span></a></li>' +
         '</ul>' +
-        '<div class="booking-panel">' +
-          '<h3>Prenota una chiamata</h3>' +
-          '<div data-booking></div>' +
-        '</div>' +
       '</div>'
     );
   }
@@ -40,12 +36,10 @@
     const svc = services.map(function (s) {
       return '<article class="svc">' +
         '<h3>' + escapeHtml(s.title) + '</h3>' +
-        '<p>' + escapeHtml(s.client) + '</p>' +
-        '<p class="svc-delivers">' + escapeHtml(s.delivers) + '</p>' +
       '</article>';
     }).join('');
     const ph = phases.map(function (p) {
-      return '<li><strong>' + escapeHtml(p.title) + '</strong> ' + escapeHtml(p.summary) + '</li>';
+      return '<li><strong>' + escapeHtml(p.title) + '</strong></li>';
     }).join('');
     const pe = people.map(function (p) {
       return '<a class="person-card" href="' + studioHref + '#persone">' +
@@ -56,11 +50,11 @@
     }).join('');
     return (
       '<div class="sintesi-grid">' +
-        '<div><h3 class="sintesi-kicker">Cosa facciamo in concreto</h3><div class="svc-grid">' + svc + '</div></div>' +
-        '<div><h3 class="sintesi-kicker">Come lavoriamo</h3><ol class="phase-preview">' + ph + '</ol>' +
-          '<a class="text-link" href="' + studioHref + '#metodo">Il metodo completo</a></div>' +
-        '<div><h3 class="sintesi-kicker">Il collettivo</h3><div class="people-preview">' + pe + '</div>' +
-          '<a class="text-link" href="' + studioHref + '#persone">Il collettivo</a></div>' +
+        '<div><h3 class="sintesi-kicker">Cosa facciamo</h3><div class="svc-grid">' + svc + '</div></div>' +
+        '<div><h3 class="sintesi-kicker">Come</h3><ol class="phase-preview">' + ph + '</ol>' +
+          '<a class="text-link" href="' + studioHref + '#metodo">Il metodo</a></div>' +
+        '<div><h3 class="sintesi-kicker">Chi</h3><div class="people-preview">' + pe + '</div>' +
+          '<a class="text-link" href="' + studioHref + '#persone">Le persone</a></div>' +
       '</div>'
     );
   }
@@ -113,14 +107,26 @@
     const figs = project.gallery.map(function (g) {
       return '<figure><img src="' + escapeHtml(g.src) + '" alt="' + escapeHtml(g.alt) + '" loading="lazy"><figcaption>' + escapeHtml(g.caption) + '</figcaption></figure>';
     }).join('');
+    const extraPhotos = (project.gallery || []).slice(1, 3);
+    const visual = (
+      '<div class="case-hero-visual">' +
+        '<img class="case-hero-cover" src="' + escapeHtml(project.image) + '" alt="' + escapeHtml(project.title) + '">' +
+        extraPhotos.map(function (g) {
+          return '<img src="' + escapeHtml(g.src) + '" alt="' + escapeHtml(g.alt) + '">';
+        }).join('') +
+      '</div>'
+    );
     return (
       '<header class="case-hero">' +
-        '<p class="sec-index">' + escapeHtml(project.num) + ' / ' + escapeHtml(project.year) + '</p>' +
-        '<h1 class="sec-title">' + escapeHtml(project.title) + '</h1>' +
-        '<p class="case-role">' + escapeHtml(project.role) + '</p>' +
-        '<p><a class="text-link" href="' + workHref + '">Tutti i progetti</a></p>' +
+        '<div class="case-hero-copy">' +
+          '<p class="sec-index">' + escapeHtml(project.num) + ' / ' + escapeHtml(project.year) + '</p>' +
+          '<h1 class="sec-title">' + escapeHtml(project.title) + '</h1>' +
+          '<p class="case-role">' + escapeHtml(project.role) + '</p>' +
+          '<p class="case-lead">' + escapeHtml(project.brief) + '</p>' +
+          '<p><a class="text-link" href="' + workHref + '">Tutti i progetti</a></p>' +
+        '</div>' +
+        visual +
       '</header>' +
-      '<section class="studio-block"><h2>Brief</h2><p class="about-lead">' + escapeHtml(project.brief) + '</p></section>' +
       '<section class="studio-block"><h2>Processo</h2><ol class="case-process">' + steps + '</ol></section>' +
       '<section class="studio-block"><h2>Deliverable</h2><ul class="list">' + dels + '</ul></section>' +
       '<section class="studio-block"><h2>Gallery</h2><div class="gallery">' + figs + '</div></section>' +
@@ -129,6 +135,19 @@
         '<a class="case-next-link" href="' + escapeHtml(next.slug) + '.html"><span>Prossimo progetto</span>' + escapeHtml(next.title) + '</a>' +
       '</nav>' +
       '<section class="studio-block" id="contact">' + contactHtml + '</section>'
+    );
+  }
+
+  function homeWork({ projects, workBase }) {
+    const base = workBase || 'work/';
+    return (
+      '<div class="work-thumbs">' +
+        projects.map(function (p) {
+          return '<a class="work-thumb" href="' + base + escapeHtml(p.slug) + '.html" data-cursor="Vedi caso">' +
+            '<span class="work-thumb-visual"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.title) + '" loading="lazy"></span>' +
+          '</a>';
+        }).join('') +
+      '</div>'
     );
   }
 
@@ -141,5 +160,5 @@
     );
   }
 
-  return { escapeHtml, contactBlock, homeSintesi, studioPage, casePage, notFound };
+  return { escapeHtml, contactBlock, homeSintesi, homeWork, studioPage, casePage, notFound };
 }));

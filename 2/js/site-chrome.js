@@ -4,8 +4,68 @@
 }(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
+  function horizontalDelta(deltaX, deltaY) {
+    return Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+  }
+
+  function horizontalScrollRoot() {
+    if (typeof document === 'undefined') return null;
+    const body = document.body;
+    const html = document.documentElement;
+    if (body && body.scrollWidth > body.clientWidth + 1) return body;
+    if (html && html.scrollWidth > html.clientWidth + 1) return html;
+    const main = document.querySelector('main');
+    if (main && main.scrollWidth > main.clientWidth + 1) return main;
+    return null;
+  }
+
+  function bindHorizontalWheel() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+    addEventListener('wheel', function (e) {
+      if (e.ctrlKey) return;
+      const root = horizontalScrollRoot();
+      if (!root) return;
+      const deltaRaw = horizontalDelta(e.deltaX, e.deltaY);
+      if (!deltaRaw) return;
+      let delta = deltaRaw;
+      if (e.deltaMode === 1) delta *= 16;
+      if (e.deltaMode === 2) delta *= innerHeight;
+      e.preventDefault();
+      root.scrollLeft += delta;
+    }, { passive: false });
+  }
+
+  function scrollToHashTarget(target, smooth) {
+    if (!target) return;
+    const root = horizontalScrollRoot();
+    if (!root) {
+      target.scrollIntoView({
+        behavior: smooth ? 'smooth' : 'auto',
+        inline: 'start',
+        block: 'nearest'
+      });
+      return;
+    }
+    const next = root.scrollLeft + (target.getBoundingClientRect().left - root.getBoundingClientRect().left);
+    if (smooth && typeof root.scrollTo === 'function') {
+      root.scrollTo({ left: next, behavior: 'smooth' });
+    } else {
+      root.scrollLeft = next;
+    }
+  }
+
   function init() {
     if (typeof document === 'undefined') return;
+    bindHorizontalWheel();
+    if (location.hash) {
+      const hashed = document.querySelector(location.hash);
+      if (hashed) {
+        requestAnimationFrame(function () {
+          scrollToHashTarget(hashed, false);
+        });
+      }
+    }
     const cursor = document.getElementById('cursor');
     const cursorLabel = document.getElementById('cursor-label');
     if (cursor) {
@@ -50,10 +110,10 @@
         const target = document.querySelector(href);
         if (!target) return;
         e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth' });
+        scrollToHashTarget(target, true);
       });
     });
   }
 
-  return { init };
+  return { init, horizontalDelta, horizontalScrollRoot };
 }));

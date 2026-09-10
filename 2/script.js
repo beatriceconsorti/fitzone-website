@@ -1,64 +1,17 @@
 (() => {
   'use strict';
 
-  const loaderProg = document.querySelector('.loader-progress');
-  const loaderCount = document.querySelector('.loader-count');
-
-  const preloader = new Promise((resolve) => {
-    let p = 0;
-    const tick = () => {
-      p += Math.random() * 22 + 8;
-      if (p > 100) p = 100;
-      if (loaderProg) loaderProg.style.width = p + '%';
-      if (loaderCount) loaderCount.textContent = Math.round(p) + '%';
-      if (p < 100) setTimeout(tick, 120);
-      else setTimeout(resolve, 300);
-    };
-    setTimeout(tick, 200);
-  });
-
-  const boot = () => {
-    document.getElementById('loader').classList.add('done');
-    document.body.style.overflow = '';
-    setTimeout(startReveal, 100);
-  };
-
-  Promise.all([
-    preloader,
-    window.matchMedia('print').matches
-      ? Promise.resolve()
-      : new Promise((res) => (document.readyState === 'complete' ? res() : window.addEventListener('load', res, { once: true })))
-  ]).then(boot);
-
-  document.body.style.overflow = 'hidden';
-
-  let mx = innerWidth / 2, my = innerHeight / 2;
-  let heroCharsCache = null;
-  function colorizeHeroTitle() {
-    if (!heroCharsCache) heroCharsCache = document.querySelectorAll('.hero-title .char');
-    if (!heroCharsCache.length) return;
-    const palette = ['var(--accent)', 'var(--muted)', 'var(--ink)'];
-    const R = 220;
-    for (const ch of heroCharsCache) {
-      const rect = ch.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const d = Math.hypot(mx - cx, my - cy);
-      if (d < R) {
-        const t = d / R;
-        const idx = Math.min(palette.length - 1, Math.floor(t * palette.length));
-        ch.style.color = palette[idx];
-      } else {
-        ch.style.color = '';
-      }
-    }
+  function bootHero() {
+    setTimeout(startReveal, 80);
   }
-  addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; colorizeHeroTitle(); }, { passive: true });
+  if (window.__azimuthRevealed) bootHero();
+  else addEventListener('azimuth:reveal', bootHero, { once: true });
 
   /* Reveal on scroll */
   const h1 = document.querySelector('.hero-title');
 
   function splitHero() {
+    if (!h1) return;
     const lines = h1.querySelectorAll('.line');
     lines.forEach((line, i) => {
       const text = line.textContent.trim();
@@ -102,7 +55,7 @@
     io.observe(el);
   });
 
-  const projects = document.querySelectorAll('.project');
+  const projects = document.querySelectorAll('.project, .work-thumb');
   projects.forEach((p) => {
     p.setAttribute('data-cursor', 'Vedi caso');
   });

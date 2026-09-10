@@ -69,20 +69,18 @@
     }
   }
 
-  function spawnBall(initialBurst = false) {
-    if (balls.length >= maxBalls) return;
-    const r = 20 + Math.floor(Math.random() * 18);
-    const x = r + Math.random() * Math.max(W - r * 2, 1);
-    const y = scrollTop - r - (initialBurst ? Math.random() * H * 0.5 : 16 + Math.random() * 80);
+  let live = false;
 
+  function spawnAt(x, y, r, color, vx, vy) {
+    if (balls.length >= maxBalls) return;
     const body = Bodies.circle(x, y, r, {
       restitution: 0.65,
       frictionAir: 0.006,
       friction: 0.02,
       density: 0.0009,
-      render: { fillStyle: COLORS[Math.floor(Math.random() * COLORS.length)] }
+      render: { fillStyle: color }
     });
-
+    if (vx || vy) Body.setVelocity(body, { x: vx || 0, y: vy || 0 });
     World.add(world, body);
     balls.push({
       body,
@@ -93,6 +91,31 @@
       dying: false,
       fade: 0.016 + Math.random() * 0.012
     });
+  }
+
+  function spawnBall(initialBurst = false) {
+    const r = 20 + Math.floor(Math.random() * 18);
+    const x = r + Math.random() * Math.max(W - r * 2, 1);
+    const y = scrollTop - r - (initialBurst ? Math.random() * H * 0.5 : 16 + Math.random() * 80);
+    spawnAt(x, y, r, COLORS[Math.floor(Math.random() * COLORS.length)], 0, 0);
+  }
+
+  function releaseFromCenter() {
+    const cx = W / 2;
+    const cy = scrollTop + H / 2;
+    const orbit = 36;
+    const speed = 3.4;
+    const specs = [
+      { color: COLORS[1], a: -Math.PI / 2, r: 24 },
+      { color: COLORS[0], a: 0, r: 22 },
+      { color: COLORS[2], a: Math.PI / 2, r: 26 },
+      { color: COLORS[3], a: Math.PI, r: 20 }
+    ];
+    for (const s of specs) {
+      const x = cx + Math.cos(s.a) * orbit;
+      const y = cy + Math.sin(s.a) * orbit;
+      spawnAt(x, y, s.r, s.color, -Math.sin(s.a) * speed, Math.cos(s.a) * speed);
+    }
   }
 
   function burst(count) {
@@ -120,11 +143,11 @@
     Engine.update(engine, dt);
     placeBoundaries();
 
-    if (balls.length < maxBalls) {
+    if (live && balls.length < maxBalls) {
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
         spawnBall();
-        spawnTimer = 140 + Math.random() * 180;
+        spawnTimer = 70 + Math.random() * 90;
       }
     }
 
@@ -199,7 +222,7 @@
     canvas.style.height = H + 'px';
 
     const area = W * H;
-    maxBalls = Math.max(30, Math.min(70, Math.round(area / 24000)));
+    maxBalls = Math.max(24, Math.min(48, Math.round(area / 26000)));
   }
 
   makeBoundaries();
@@ -217,12 +240,23 @@
   window.addEventListener('load', () => {
     resize();
     syncColliders();
-    burst(Math.max(12, Math.round(maxBalls * 0.25)));
   }, { once: true });
 
-  syncColliders();
-  burst(Math.max(10, Math.round(maxBalls * 0.2)));
-  spawnTimer = 0;
+  function startLive() {
+    if (live) return;
+    live = true;
+    resize();
+    syncColliders();
+    releaseFromCenter();
+    setTimeout(function () {
+      burst(Math.max(14, Math.round(maxBalls * 0.4)));
+    }, 280);
+    spawnTimer = 40;
+  }
 
+  if (window.__azimuthRevealed) startLive();
+  else addEventListener('azimuth:reveal', startLive, { once: true });
+
+  syncColliders();
   requestAnimationFrame(tick);
 })();

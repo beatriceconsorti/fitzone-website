@@ -10,15 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="home">
+<body data-page="home" class="home-booting">
 
   <canvas id="fx-canvas" aria-hidden="true"></canvas>
 
-  <div id="loader">
-    <div class="loader-inner">
-      <span class="loader-label">Studio Azimuth</span>
-      <div class="loader-bar"><div class="loader-progress"></div></div>
-      <span class="loader-count">0%</span>
+  <div id="loader" aria-hidden="true">
+    <div class="loader-cluster">
+      <span class="loader-arm"><span class="loader-ball"></span></span>
+      <span class="loader-arm"><span class="loader-ball"></span></span>
+      <span class="loader-arm"><span class="loader-ball"></span></span>
+      <span class="loader-arm"><span class="loader-ball"></span></span>
     </div>
   </div>
 
@@ -38,26 +39,15 @@
 
   <main>
     <section id="hero" class="section hero">
-      <div class="hero-marquee" aria-hidden="true">
-        <div class="marquee-track">
-          <span>Esperienze Digitali</span><em>&deg;</em>
-          <span>Esperienze Digitali</span><em>&deg;</em>
-          <span>Esperienze Digitali</span><em>&deg;</em>
-          <span>Esperienze Digitali</span><em>&deg;</em>
-          <span>Esperienze Digitali</span><em>&deg;</em>
-          <span>Esperienze Digitali</span><em>&deg;</em>
-        </div>
-      </div>
       <div class="hero-content">
         <h1 class="hero-title">
           <span class="line">Dalla forma</span>
           <span class="line">alle idee</span>
         </h1>
         <p class="hero-sub">Studio di grafica che progetta esperienze digitali: siti interattivi, brand identity e animazioni in motion design. Basati a Milano, lavoriamo ovunque.</p>
-        <a href="#work" class="btn-hero" data-hover>Scopri i progetti <span>&darr;</span></a>
+        <a href="#work" class="btn-hero" data-hover>Scopri i progetti <span>&rarr;</span></a>
       </div>
       <div class="hero-meta">
-        <span class="rotating-text">studio&nbsp;&deg;&nbsp;grafica&nbsp;&deg;&nbsp;digitale&nbsp;&deg;&nbsp;interazione</span>
         <span>Milano — 2024</span>
       </div>
     </section>
@@ -67,7 +57,7 @@
         <p class="sec-index">02 / Chi siamo</p>
         <h2 class="sec-title">Studio</h2>
       </div>
-      <p class="about-lead">Sintesi per chi valuta un lavoro: cosa facciamo, come collaboriamo, chi c’è.</p>
+      <p class="about-lead">Tre designer a Milano. Siti, motion, identità.</p>
       <div id="sintesi-root"></div>
     </section>
 
@@ -76,46 +66,7 @@
         <p class="sec-index">01 / Selezionati</p>
         <h2 class="sec-title">Progetti</h2>
       </div>
-
-      <a class="project" data-project href="work/nebula-commerce.html" data-cursor="Vedi caso">
-        <div class="project-num">01</div>
-        <div class="project-info">
-          <h3>Nebula Commerce</h3>
-          <p>E-commerce immersivo con WebGL e transizione di prodotto 3D. Ricostruzione completa dell'esperienza di acquisto.</p>
-        </div>
-        <div class="project-visual"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" alt="Nebula Commerce" loading="lazy"></div>
-        <div class="project-year">2024</div>
-      </a>
-
-      <a class="project" data-project href="work/materia-festival.html" data-cursor="Vedi caso">
-        <div class="project-num">02</div>
-        <div class="project-info">
-          <h3>Materia Festival</h3>
-          <p>Identità visiva animata e sito one-page con layout orizzontale, scroll cinematografico e palette vibrante.</p>
-        </div>
-        <div class="project-visual"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&q=80" alt="Materia Festival" loading="lazy"></div>
-        <div class="project-year">2024</div>
-      </a>
-
-      <a class="project" data-project href="work/orbit-playground.html" data-cursor="Vedi caso">
-        <div class="project-num">03</div>
-        <div class="project-info">
-          <h3>Orbit Playground</h3>
-          <p>Esperienza interattiva in WebGL ispirata alla fisica orbitale. Sperimentazione libera su motorio e dati.</p>
-        </div>
-        <div class="project-visual"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt="Orbit Playground" loading="lazy"></div>
-        <div class="project-year">2023</div>
-      </a>
-
-      <a class="project" data-project href="work/archive-id.html" data-cursor="Vedi caso">
-        <div class="project-num">04</div>
-        <div class="project-info">
-          <h3>Archive ID</h3>
-          <p>Database tipografico per uno studio di branding. Ricerca parametrica, font variabili e micro-interazioni.</p>
-        </div>
-        <div class="project-visual"><img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80" alt="Archive ID" loading="lazy"></div>
-        <div class="project-year">2023</div>
-      </a>
+      <div id="work-root"></div>
     </section>
 
     <section id="contact" class="section contact">
@@ -138,9 +89,8 @@
 
   <script src="js/content.js"></script>
   <script src="js/contact-links.js"></script>
-  <script src="js/booking.js"></script>
   <script src="js/render.js"></script>
-  <script src="js/booking-ui.js"></script>
+  <script src="js/hero-color.js"></script>
   <script src="js/site-chrome.js"></script>
   <script src="js/hydrate.js"></script>
   <script src="blobs.js"></script>
@@ -149,5 +99,7 @@
   <script src="falling-balls.js"></script>
   <script src="mid-blobs.js"></script>
   <script src="shapes.js"></script>
+  <script src="js/home-loader.js"></script>
+  <script>AzimuthHomeLoader.init();</script>
 </body>
 </html>

@@ -16,36 +16,105 @@
     <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
     <style>
       :root {
-        --ink: #1c1917;
-        --muted: #78716c;
-        --paper: #fafaf9;
-        --line: #e7e5e4;
-        --event: #b45309;
+        --ink: #3f3a36;
+        --muted: #7a736c;
+        --paper: #f7f1e8;
+        --line: #e2d8cc;
+        --event: #c45c1a;
+        --soon: #eab308;
         --empty: #57534e;
       }
       * { box-sizing: border-box; }
-      html, body { margin: 0; height: 100%; font-family: Georgia, "Times New Roman", serif; color: var(--ink); background: #fff; }
-      .proto-banner {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
-        background: #111; color: #fde68a; font-family: ui-monospace, monospace;
-        font-size: 12px; padding: 6px 12px; letter-spacing: 0.04em;
+      html, body { margin: 0; height: 100%; font-family: Georgia, "Times New Roman", serif; color: var(--ink); background: var(--paper); }
+      body { display: flex; flex-direction: column; }
+      .city-bar {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px 28px;
+        flex-wrap: wrap;
+        padding: 12px 20px 14px;
+        background: #f3ebe2;
+        border-bottom: 1px solid var(--line);
+        z-index: 2000;
       }
-      #app { position: fixed; inset: 36px 0 88px 0; }
-      #map { width: 100%; height: 100%; background: #efe8e0; min-height: 240px; }
-
-      /* A */
-      .a-bar {
-        position: absolute; top: 12px; left: 12px; z-index: 500;
-        background: #fff; padding: 10px 14px; border: 1px solid var(--line);
-        max-width: 18rem;
+      body:not([data-variant="A"]) .city-bar { display: none; }
+      .city-bar-lead { min-width: 12rem; }
+      .proto-mark {
+        margin: 0 0 4px;
+        font-family: ui-monospace, monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
       }
-      .a-bar strong { display: block; font-size: 1.05rem; }
-      .a-bar span { font-size: 0.8rem; color: var(--muted); font-family: system-ui, sans-serif; }
-      .a-fab {
-        position: absolute; right: 16px; bottom: 16px; z-index: 500;
-        border: 0; background: var(--ink); color: #fff;
-        font-family: system-ui, sans-serif; font-size: 0.95rem;
-        padding: 14px 18px; cursor: pointer;
+      .city-bar h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+      }
+      .city-bar-line {
+        margin: 3px 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-family: system-ui, sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .legend li { display: flex; align-items: center; gap: 7px; }
+      .swatch {
+        width: 11px; height: 11px; border-radius: 2px;
+        box-shadow: inset 0 0 0 1px rgba(63, 58, 54, 0.12);
+      }
+      .swatch-now { background: #ff4d00; }
+      .swatch-soon { background: #eab308; }
+      .swatch-none { background: #f6f3ee; }
+      .city-proponi {
+        margin-left: auto;
+        border: 1px solid var(--ink);
+        background: transparent;
+        color: var(--ink);
+        font-family: system-ui, sans-serif;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      .city-proponi:hover { background: var(--ink); color: var(--paper); }
+      #app { position: relative; flex: 1; min-height: 0; width: 100%; }
+      .map-stage { position: relative; width: 100%; height: 100%; }
+      #map { width: 100%; height: 100%; background: #ebe4dc; min-height: 240px; cursor: pointer; }
+      #map .osmb-attribution,
+      #map .attribution {
+        font-family: system-ui, sans-serif !important;
+        font-size: 10px !important;
+        color: var(--muted) !important;
+        background: transparent !important;
+        opacity: 0.7;
+      }
+      .ev { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }
+      .ev:first-of-type { margin-top: 12px; }
+      .ev-title { font-size: 1rem; }
+      .ev-desc {
+        margin: 5px 0 0; font-family: system-ui, sans-serif;
+        font-size: 0.85rem; color: var(--muted); line-height: 1.4;
+      }
+      .when {
+        margin: 6px 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.78rem;
+        color: var(--muted);
       }
 
       /* B */
@@ -64,7 +133,7 @@
       .b-item.is-on { background: #fff7ed; }
       .b-item .name { font-size: 1rem; }
       .b-item .meta { font-size: 0.75rem; color: var(--muted); font-family: system-ui, sans-serif; margin-top: 4px; }
-      .b-map { position: relative; }
+      .b-map { position: relative; height: 100%; min-height: 0; }
 
       /* C */
       .c-hint {
@@ -90,63 +159,131 @@
 
       .popup-ev { margin: 6px 0 0; padding: 0; list-style: none; font-family: system-ui, sans-serif; font-size: 0.8rem; }
       .popup-ev li { margin: 4px 0; }
-      .tag { display: inline-block; font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 6px; }
+      .tag {
+        display: inline-block;
+        font-family: system-ui, sans-serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin: 0 0 4px;
+      }
       .tag-now { color: var(--event); }
-      .tag-soon { color: var(--muted); }
+      .tag-soon { color: var(--soon); }
 
       .luogo-card {
-        position: absolute; left: 12px; bottom: 16px; z-index: 550;
-        background: #fff; border: 1px solid var(--ink); padding: 12px 14px;
-        width: min(22rem, calc(100% - 24px)); display: none; max-height: 40%; overflow: auto;
+        position: absolute; right: 18px; top: 18px; left: auto; bottom: auto; z-index: 550;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        border-left: 4px solid var(--luogo, var(--event));
+        padding: 16px 16px 18px;
+        width: min(24rem, calc(100% - 36px));
+        display: none;
+        max-height: min(52%, calc(100% - 36px));
+        overflow: auto;
+        box-shadow: 0 10px 28px rgba(63, 58, 54, 0.12);
       }
       .luogo-card.is-open { display: block; }
-      .luogo-card h2 { margin: 0 0 6px; font-size: 1.1rem; }
+      .luogo-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .luogo-card h2 { margin: 0; font-size: 1.28rem; font-weight: 400; line-height: 1.2; }
+      .luogo-kind {
+        margin: 4px 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.75rem;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .luogo-close {
+        flex: 0 0 auto;
+        width: 28px; height: 28px;
+        margin: -4px -6px 0 0;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 1.35rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .luogo-close:hover { color: var(--ink); }
+
+      .event-marks {
+        position: absolute; inset: 0; z-index: 520;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .event-mark {
+        position: absolute; left: 0; top: 0;
+        display: flex; flex-direction: column; align-items: center;
+        border: 0; padding: 0; margin: 0;
+        background: transparent;
+        cursor: pointer;
+        pointer-events: auto;
+        transform: translate(-50%, -100%);
+      }
+      .event-mark-ball {
+        width: 13px; height: 13px;
+        border-radius: 50%;
+        background: var(--mark);
+        box-shadow: 0 0 0 2px #fff, 0 2px 7px rgba(63, 58, 54, 0.28);
+      }
+      .event-mark-dots {
+        width: 3px;
+        height: 26px;
+        margin-top: 2px;
+        background: repeating-linear-gradient(
+          to bottom,
+          var(--mark) 0 3px,
+          transparent 3px 6px
+        );
+      }
+
       .modal {
         display: none; position: absolute; inset: 0; z-index: 800;
-        background: rgba(28, 25, 23, 0.45); align-items: center; justify-content: center;
+        background: rgba(63, 58, 54, 0.38); align-items: center; justify-content: center;
       }
       .modal.is-open { display: flex; }
       .modal-card {
-        background: #fff; padding: 20px; width: min(22rem, 92%);
+        background: var(--paper); padding: 22px 22px 20px; width: min(22rem, 92%);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        box-shadow: 0 12px 32px rgba(63, 58, 54, 0.16);
+      }
+      .modal-card h2 { margin: 0 0 8px; font-size: 1.2rem; font-weight: 400; }
+      .modal-card p { margin: 0 0 16px; font-size: 0.9rem; color: var(--muted); font-family: system-ui, sans-serif; }
+      .modal-card button {
+        font-family: system-ui, sans-serif;
+        padding: 8px 14px;
+        cursor: pointer;
         border: 1px solid var(--ink);
+        background: transparent;
+        color: var(--ink);
+        border-radius: 2px;
       }
-      .modal-card h2 { margin: 0 0 8px; font-size: 1.15rem; }
-      .modal-card p { margin: 0 0 14px; font-size: 0.9rem; color: var(--muted); font-family: system-ui, sans-serif; }
-      .modal-card button { font-family: system-ui, sans-serif; padding: 8px 12px; cursor: pointer; }
-
-      #state-strip {
-        position: fixed; left: 0; right: 0; bottom: 52px; z-index: 3000;
-        background: #1c1917; color: #e7e5e4; font-family: ui-monospace, monospace;
-        font-size: 11px; padding: 6px 12px; white-space: nowrap; overflow: auto;
-      }
-      #switcher {
-        position: fixed; left: 50%; bottom: 8px; transform: translateX(-50%);
-        z-index: 4000; display: flex; gap: 8px; align-items: center;
-        background: #0c0a09; color: #fafaf9; padding: 8px 10px;
-        font-family: system-ui, sans-serif; font-size: 13px;
-        box-shadow: 0 8px 24px rgba(0,0,0,.35);
-      }
-      #switcher button {
-        background: #fafaf9; color: #0c0a09; border: 0; width: 32px; height: 32px;
-        cursor: pointer; font-size: 16px;
-      }
-      #switcher .lab { min-width: 14rem; text-align: center; }
 
       @media (max-width: 720px) {
         .b-wrap { grid-template-columns: 1fr; grid-template-rows: 38% 1fr; }
         .b-side { border-right: 0; border-bottom: 1px solid var(--line); }
+        .city-proponi { margin-left: 0; }
+        .luogo-card { right: 12px; top: auto; bottom: 16px; }
       }
     </style>
   </head>
   <body>
-    <div class="proto-banner">PROTOTIPO THROWAWAY · ticket Come si esplora la mappa · non è il Sito</div>
+    <header class="city-bar">
+      <div class="city-bar-lead">
+        <p class="proto-mark">Prototipo · non è il Sito</p>
+        <h1>Ascoli Piceno</h1>
+        <p class="city-bar-line">Cosa accade in questi giorni</p>
+      </div>
+      <ul class="legend" aria-label="Legenda">
+        <li><i class="swatch swatch-now" aria-hidden="true"></i> In corso</li>
+        <li><i class="swatch swatch-soon" aria-hidden="true"></i> In arrivo</li>
+        <li><i class="swatch swatch-none" aria-hidden="true"></i> Nessun Evento</li>
+      </ul>
+      <button type="button" class="city-proponi" id="proponi">Proponi un Evento</button>
+    </header>
     <div id="app"></div>
-    <div id="state-strip"></div>
-    <div id="switcher" aria-label="Varianti prototipo">
-      <button type="button" id="prev" aria-label="Variante precedente">←</button>
-      <div class="lab" id="lab"></div>
-      <button type="button" id="next" aria-label="Variante successiva">→</button>
-    </div>
 
     <script>
       const VARIANTS = [
@@ -159,20 +296,37 @@
         {
           id: "popolo",
           nome: "Piazza del Popolo",
+          suolo: "piazza",
           lat: 42.85472,
           lng: 13.57505,
-          eventi: [{ titolo: "Mercato del sabato", data: "2026-09-12" }],
+          eventi: [
+            {
+              titolo: "Mercato del sabato",
+              data: "2026-09-12",
+              descrizione:
+                "Banchi di alimentari e artigianato sotto i portici, dal mattino a pranzo.",
+            },
+          ],
         },
         {
           id: "arringo",
           nome: "Piazza Arringo",
+          suolo: "piazza",
           lat: 42.85355,
           lng: 13.57685,
-          eventi: [{ titolo: "Letture in piazza", data: "2026-09-11" }],
+          eventi: [
+            {
+              titolo: "Letture in piazza",
+              data: "2026-09-11",
+              descrizione:
+                "Letture ad alta voce davanti al battistero, aperte a chi passa.",
+            },
+          ],
         },
         {
           id: "cecco",
           nome: "Ponte di Cecco",
+          suolo: "ponte",
           lat: 42.85435,
           lng: 13.58055,
           eventi: [],
@@ -180,16 +334,62 @@
         {
           id: "teatro",
           nome: "Teatro Ventidio Basso",
+          suolo: "edificio",
           lat: 42.85415,
           lng: 13.57355,
-          eventi: [{ titolo: "Prova aperta", data: "2026-09-20" }],
+          eventi: [
+            {
+              titolo: "Prova aperta",
+              data: "2026-09-20",
+              descrizione:
+                "Il teatro apre una prova di palcoscenico: si entra, si ascolta, si esce.",
+            },
+          ],
         },
         {
           id: "duomo",
           nome: "Cattedrale di Sant'Emidio",
+          suolo: "chiesa",
           lat: 42.85325,
           lng: 13.57705,
-          eventi: [],
+          eventi: [
+            {
+              titolo: "Concerto d'organo",
+              data: "2026-09-18",
+              descrizione:
+                "Musica per organo nella navata, ingresso libero fino a esaurimento posti.",
+            },
+          ],
+        },
+        {
+          id: "francesco",
+          nome: "Piazza San Francesco",
+          suolo: "piazza",
+          lat: 42.85535,
+          lng: 13.57415,
+          eventi: [
+            {
+              titolo: "Fiera dell'artigianato",
+              data: "2026-09-19",
+              descrizione:
+                "Banchi di legno, ceramica e tessuti intorno alla piazza.",
+            },
+          ],
+        },
+        {
+          id: "giardini",
+          nome: "Giardini di Piazza Roma",
+          suolo: "giardino",
+          lat: 42.85395,
+          lng: 13.57285,
+          eventi: [
+            {
+              titolo: "Musica sotto gli alberi",
+              data: "2026-09-14",
+              descrizione:
+                "Un piccolo ensemble suona al tramonto tra i viali.",
+            },
+          ],
         },
       ];
 
@@ -216,8 +416,23 @@
       }
       function etichettaData(data) {
         if (data === TODAY) return "in corso";
-        if (data > TODAY) return "prossimo";
+        if (data > TODAY) return "in arrivo";
         return "passato";
+      }
+      function formatGiorno(iso) {
+        const mesi = [
+          "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+          "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre",
+        ];
+        const p = iso.split("-");
+        const d = parseInt(p[2], 10);
+        const m = parseInt(p[1], 10);
+        if (!d || !m) return iso;
+        return d + " " + mesi[m - 1];
+      }
+      function suoloLabel(suolo) {
+        if (!suolo) return "";
+        return suolo.charAt(0).toUpperCase() + suolo.slice(1);
       }
 
       function currentVariant() {
@@ -243,65 +458,77 @@
         setVariant(VARIANTS[n].key);
       }
 
-      function paintState() {
-        const luogo = luogoById(state.selectedId);
-        document.getElementById("state-strip").textContent =
-          "stato  variant=" +
-          state.variant +
-          "  selected=" +
-          (luogo ? luogo.nome : "—") +
-          "  pin=" +
-          (luogo ? pinKind(luogo) : "—") +
-          "  formOpen=" +
-          state.formOpen +
-          "  formFrom=" +
-          (state.formFrom || "—");
-        const v = VARIANTS.find((x) => x.key === state.variant);
-        document.getElementById("lab").textContent = v.key + " (" + v.name + ")";
-      }
+      function paintState() {}
 
       function listaEventi(luogo) {
         if (!luogo.eventi.length) return "<p class='when'>Nessun Evento su questo Luogo.</p>";
-        return (
-          "<ul class='popup-ev'>" +
-          luogo.eventi
-            .map((e) => {
-              const k = etichettaData(e.data);
-              const cls = k === "in corso" ? "tag-now" : "tag-soon";
-              return (
-                "<li><span class='tag " +
-                cls +
-                "'>" +
-                k +
-                "</span>" +
-                e.titolo +
-                " · " +
-                e.data +
-                "</li>"
-              );
-            })
-            .join("") +
-          "</ul>"
-        );
+        return luogo.eventi
+          .map((e) => {
+            const k = etichettaData(e.data);
+            const cls = k === "in corso" ? "tag-now" : "tag-soon";
+            const desc = e.descrizione
+              ? "<p class='ev-desc'>" + e.descrizione + "</p>"
+              : "";
+            return (
+              "<div class='ev'><span class='tag " +
+              cls +
+              "'>" +
+              k +
+              "</span><div class='ev-title'>" +
+              e.titolo +
+              "</div>" +
+              desc +
+              "<p class='when'>" +
+              formatGiorno(e.data) +
+              "</p></div>"
+            );
+          })
+          .join("");
       }
 
-      function markerColor(luogo) {
-        const k = pinKind(luogo);
-        if (k === "in-corso") return "#c2410c";
-        if (k === "con-eventi") return "#1c1917";
-        return "#a8a29e";
+      function mapStageHtml() {
+        return '<div class="map-stage"><div id="map"></div><div class="event-marks" id="event-marks"></div></div>';
       }
 
-      const COLOR_IN_CORSO = "#ff6a1a";
-      const COLOR_FUTURO = "#44403c";
+      const COLOR_IN_CORSO = "#ff4d00";
+      const COLOR_IN_ARRIVO = "#eab308";
+
+      function coloreLuogo(luogo) {
+        if (!luogo) return COLOR_IN_CORSO;
+        if (hasInCorso(luogo)) return COLOR_IN_CORSO;
+        if (luogo.eventi && luogo.eventi.length) return COLOR_IN_ARRIVO;
+        return COLOR_CITTA;
+      }
+
+      function rememberBuilding(id, luogo) {
+        if (!id || !luogo) return;
+        const key = String(id);
+        const raw = key.replace(/^osm-w/i, "");
+        buildingTint.toLuogo[key] = luogo.id;
+        buildingTint.toLuogo[raw] = luogo.id;
+        buildingTint.color[key] = coloreLuogo(luogo);
+        buildingTint.color[raw] = coloreLuogo(luogo);
+      }
+
+      function metersToLuogo(lng, lat, luogo) {
+        const dy = (lat - luogo.lat) * 110540;
+        const dx = (lng - luogo.lng) * 111320 * Math.cos((lat * Math.PI) / 180);
+        return Math.hypot(dx, dy);
+      }
+
+      const EVENT_BUILDING_MAX_M = 80;
+
+      const COLOR_CITTA = "rgb(250, 250, 248)";
       const BUILDING_TILES =
         "https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json";
-      const BUILDING_CACHE_KEY = "ascoli-buildings-v1";
-      const buildingTint = { inCorso: {}, futuro: {}, toLuogo: {} };
+      const BUILDING_CACHE_KEY = "ascoli-buildings-v3";
+      const buildingTint = { toLuogo: {}, color: {} };
       let osmb = null;
       let onLuogoClick = null;
       let buildingTiles = null;
       let detailedLayer = null;
+      let eventLayer = null;
+      let eventMarkers = [];
       window.__buildingsAppear = {
         t0: performance.now(),
         osmbMs: null,
@@ -361,83 +588,177 @@
         if (osmb) osmb.dataGrid = null;
       }
 
+      function paintEventColors(fc) {
+        const features = fc.features || [];
+        buildingTint.toLuogo = {};
+        buildingTint.color = {};
+        eventMarkers = [];
+        features.forEach((f) => {
+          if (!f.properties) return;
+          f.properties.color = COLOR_CITTA;
+          f.properties.roofColor = COLOR_CITTA;
+        });
+        const luoghi = LUOGHI.filter((l) => pinKind(l) !== "vuoto");
+        const pairs = [];
+        features.forEach((f) => {
+          if (!f.id || String(f.id).indexOf("-cupola") !== -1) return;
+          const ring = f.geometry && f.geometry.coordinates && f.geometry.coordinates[0];
+          if (!ring) return;
+          const c = ringCentroid(ring);
+          luoghi.forEach((luogo) => {
+            const d = metersToLuogo(c[0], c[1], luogo);
+            if (d <= EVENT_BUILDING_MAX_M) pairs.push({ d: d, f: f, luogo: luogo, c: c });
+          });
+        });
+        pairs.sort((a, b) => a.d - b.d);
+        const usedFeature = {};
+        const usedLuogo = {};
+        pairs.forEach((p) => {
+          const fid = String(p.f.id);
+          if (usedFeature[fid] || usedLuogo[p.luogo.id]) return;
+          usedFeature[fid] = true;
+          usedLuogo[p.luogo.id] = true;
+          const col = coloreLuogo(p.luogo);
+          p.f.properties.color = col;
+          p.f.properties.roofColor = col;
+          rememberBuilding(p.f.id, p.luogo);
+          eventMarkers.push({
+            id: p.luogo.id,
+            lng: p.c[0],
+            lat: p.c[1],
+            alt: Math.max(16, p.f.properties.height || 16) + 1,
+            color: col,
+          });
+          features.forEach((part) => {
+            if (String(part.id) !== fid + "-cupola" || !part.properties) return;
+            part.properties.color = col;
+            part.properties.roofColor = col;
+            rememberBuilding(part.id, p.luogo);
+          });
+        });
+        return fc;
+      }
+
+      function mountEventMarks() {
+        const layer = document.getElementById("event-marks");
+        if (!layer) return;
+        layer.innerHTML = "";
+        eventMarkers.forEach((m) => {
+          const luogo = luogoById(m.id);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "event-mark";
+          btn.style.setProperty("--mark", m.color);
+          btn.setAttribute("aria-label", luogo ? luogo.nome : "Evento");
+          btn.innerHTML =
+            '<span class="event-mark-ball"></span><span class="event-mark-dots" aria-hidden="true"></span>';
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            if (luogo && onLuogoClick) onLuogoClick(luogo);
+          };
+          layer.appendChild(btn);
+        });
+        syncEventMarks();
+      }
+
+      function syncEventMarks() {
+        if (!osmb || typeof osmb.project !== "function") return;
+        const layer = document.getElementById("event-marks");
+        if (!layer) return;
+        const size = osmb.getSize ? osmb.getSize() : null;
+        const h = size && (size.height || size[1]) ? size.height || size[1] : 2000;
+        const w = size && (size.width || size[0]) ? size.width || size[0] : 2000;
+        const kids = layer.children;
+        for (let i = 0; i < eventMarkers.length; i++) {
+          const m = eventMarkers[i];
+          const el = kids[i];
+          if (!el) continue;
+          const p = osmb.project(m.lat, m.lng, m.alt);
+          if (!p || p.x == null || p.y == null || p.x < -40 || p.x > w + 40 || p.y < -60 || p.y > h + 40) {
+            el.style.visibility = "hidden";
+            continue;
+          }
+          el.style.visibility = "visible";
+          el.style.transform =
+            "translate(" + Math.round(p.x) + "px," + Math.round(p.y) + "px) translate(-50%, -100%)";
+        }
+      }
+
+      function dropEventBeacons() {
+        if (eventLayer && typeof eventLayer.destroy === "function") {
+          try {
+            eventLayer.destroy();
+          } catch (err) {}
+        }
+        eventLayer = null;
+      }
+
+      function addEventBeacons() {
+        if (!osmb) return;
+        dropEventBeacons();
+        eventMarkers = [];
+        const features = LUOGHI.filter((luogo) => pinKind(luogo) !== "vuoto").map((luogo) => {
+          const color = coloreLuogo(luogo);
+          const d = luogo.suolo === "piazza" || luogo.suolo === "giardino" ? 0.00014 : 0.00009;
+          const h = hasInCorso(luogo) ? 28 : 22;
+          const id = "ev-" + luogo.id;
+          rememberBuilding(id, luogo);
+          eventMarkers.push({
+            id: luogo.id,
+            lng: luogo.lng,
+            lat: luogo.lat,
+            alt: h + 1,
+            color: color,
+          });
+          return {
+            type: "Feature",
+            id: id,
+            properties: {
+              height: h,
+              color: color,
+              roofColor: color,
+              roofShape: "gabled",
+              roofHeight: 6,
+              roofDirection: 90,
+            },
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [luogo.lng - d, luogo.lat - d],
+                  [luogo.lng + d, luogo.lat - d],
+                  [luogo.lng + d, luogo.lat + d],
+                  [luogo.lng - d, luogo.lat + d],
+                  [luogo.lng - d, luogo.lat - d],
+                ],
+              ],
+            },
+          };
+        });
+        if (!features.length) return;
+        eventLayer = osmb.addGeoJSON(
+          { type: "FeatureCollection", features: features },
+          { fadeIn: false }
+        );
+        mountEventMarks();
+      }
+
       function showDetailedBuildings(fc) {
         if (!osmb || !fc || !fc.features || !fc.features.length) return;
         dropBuildingTiles();
+        dropEventBeacons();
         if (detailedLayer && typeof detailedLayer.destroy === "function") {
           try {
             detailedLayer.destroy();
           } catch (err) {}
         }
-        detailedLayer = osmb.addGeoJSON(fc, { fadeIn: false });
+        detailedLayer = osmb.addGeoJSON(paintEventColors(fc), { fadeIn: false });
+        mountEventMarks();
         markBuildingsScene("geojson");
         if (window.__buildingsAppear) {
           window.__buildingsAppear.geojsonMs = performance.now();
           window.__buildingsAppear.count = fc.features.length;
         }
-      }
-
-      function applyBuildingTint() {
-        if (!osmb || typeof osmb.highlight !== "function") return;
-        osmb.highlight((item) => {
-          const id = String(item && item.id);
-          const alt = id.replace(/^osm-w/i, "");
-          if (buildingTint.inCorso[id] || buildingTint.inCorso[alt]) return COLOR_IN_CORSO;
-          if (buildingTint.futuro[id] || buildingTint.futuro[alt]) return COLOR_FUTURO;
-          return false;
-        });
-      }
-
-      function loadEventBuildings() {
-        const pairs = LUOGHI.map((luogo) => {
-          const k = pinKind(luogo);
-          if (k === "vuoto" || k !== "in-corso") return null;
-          return { luogo, kind: k };
-        }).filter(Boolean);
-        if (!pairs.length) return Promise.resolve();
-        const around = pairs
-          .map(
-            (p) =>
-              'way["building"](around:40,' + p.luogo.lat + "," + p.luogo.lng + ");"
-          )
-          .join("\n");
-        const q =
-          "[out:json][timeout:20];(" + around + ");out ids center;";
-        const url =
-          "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(q);
-        return fetch(url)
-          .then((r) => r.json())
-          .then((data) => {
-            const els = (data && data.elements) || [];
-            els.forEach((el) => {
-              const id = "osm-w" + el.id;
-              const raw = String(el.id);
-              let best = null;
-              let bestD = 1e9;
-              pairs.forEach((p) => {
-                const c = el.center || {};
-                const d =
-                  Math.abs((c.lat || 0) - p.luogo.lat) +
-                  Math.abs((c.lon || 0) - p.luogo.lng);
-                if (d < bestD) {
-                  bestD = d;
-                  best = p;
-                }
-              });
-              if (!best) return;
-              buildingTint.toLuogo[id] = best.luogo.id;
-              buildingTint.toLuogo[raw] = best.luogo.id;
-              if (best.kind === "in-corso") {
-                buildingTint.inCorso[id] = true;
-                buildingTint.inCorso[raw] = true;
-              } else {
-                buildingTint.futuro[id] = true;
-                buildingTint.futuro[raw] = true;
-              }
-            });
-            applyBuildingTint();
-          })
-          .catch(() => {});
       }
 
       function wayRing(el) {
@@ -605,19 +926,16 @@
         let roofShape = mapRoofShape(tags["roof:shape"]);
         let roofHeight = parseFloat(tags["roof:height"]) || 0;
         let walls = taggedHeight;
-        let color = "rgb(220, 210, 200)";
-        let roofColor = "rgb(186, 142, 110)";
+        let color = COLOR_CITTA;
+        let roofColor = COLOR_CITTA;
         if (isChurch(tags)) {
           if (!walls) walls = /duomo|cattedrale/i.test(tags.name || "") ? 22 : 12;
           if (!roofShape) roofShape = "gabled";
           if (!roofHeight) roofHeight = pitchHeight(ring, Math.max(5.5, walls * 0.28));
-          color = "rgb(228, 218, 200)";
-          roofColor = "rgb(132, 78, 58)";
         } else if (isHouse(tags)) {
           if (!walls) walls = Math.max(6.5, (levels || 2) * 3.1);
           if (!roofShape) roofShape = "gabled";
           if (!roofHeight) roofHeight = pitchHeight(ring, 3.2);
-          roofColor = "rgb(168, 96, 72)";
         } else if (/apartments/i.test(tags.building || "")) {
           if (!walls) walls = Math.max(12, (levels || 4) * 3.1);
           if (!roofShape) roofShape = levels > 5 ? "flat" : "gabled";
@@ -660,8 +978,8 @@
             minHeight: Math.max(0, baseHeight - 0.4),
             roofShape: "dome",
             roofHeight: 9,
-            color: "rgb(228, 218, 200)",
-            roofColor: "rgb(132, 78, 58)",
+            color: COLOR_CITTA,
+            roofColor: COLOR_CITTA,
           },
           geometry: { type: "Polygon", coordinates: [sq] },
         };
@@ -769,15 +1087,33 @@
       function showLuogoCard(luogo) {
         const card = document.getElementById("luogo-card");
         if (!card) return;
+        card.style.setProperty("--luogo", coloreLuogo(luogo));
         card.classList.add("is-open");
+        const kind = luogo.suolo
+          ? "<p class='luogo-kind'>" + suoloLabel(luogo.suolo) + "</p>"
+          : "";
         card.innerHTML =
-          "<h2>" + luogo.nome + "</h2>" + listaEventi(luogo);
+          "<div class='luogo-card-head'><div><h2>" +
+          luogo.nome +
+          "</h2>" +
+          kind +
+          "</div><button type='button' class='luogo-close' id='luogo-close' aria-label='Chiudi'>×</button></div>" +
+          listaEventi(luogo);
+        const close = document.getElementById("luogo-close");
+        if (close) {
+          close.onclick = () => {
+            hideLuogoCard();
+            state.selectedId = null;
+            paintState();
+          };
+        }
       }
 
       function hideLuogoCard() {
         const card = document.getElementById("luogo-card");
         if (card) {
           card.classList.remove("is-open");
+          card.style.removeProperty("--luogo");
           card.innerHTML = "";
         }
       }
@@ -796,9 +1132,9 @@
           effects: ["shadows"],
           backgroundColor: "#efe8e0",
           fogColor: "#e8e0d8",
-          highlightColor: COLOR_IN_CORSO,
-          style: { color: "rgb(220, 210, 200)" },
-          attribution: "© Data OpenStreetMap © Map OSM Buildings",
+          highlightColor: "#ff4d00",
+          style: { color: COLOR_CITTA },
+          attribution: "© OpenStreetMap © OSM Buildings",
         });
         if (window.__buildingsAppear) {
           window.__buildingsAppear.osmbMs = performance.now();
@@ -816,37 +1152,43 @@
         } else {
           buildingTiles = osmb.addGeoJSONTiles(BUILDING_TILES);
           markBuildingsScene("tiles");
+          addEventBeacons();
         }
         loadDetailedModels();
-        LUOGHI.forEach((luogo) => {
-          osmb.addMarker(
-            { latitude: luogo.lat, longitude: luogo.lng, altitude: 12 },
-            { luogoId: luogo.id },
-            { color: markerColor(luogo) }
-          );
-        });
+        osmb.on("change", syncEventMarks);
+        osmb.on("resize", syncEventMarks);
         osmb.on("pointerup", (e) => {
-          if (e.marker && e.marker.data && e.marker.data.luogoId) {
-            onLuogoClick(luogoById(e.marker.data.luogoId));
-            return;
-          }
+          if (!onLuogoClick) return;
           const feats = e.features || [];
-          const raw = feats[0];
-          const fid = raw && (raw.id != null ? raw.id : raw);
-          const luogoId = buildingTint.toLuogo[String(fid)];
-          if (luogoId) onLuogoClick(luogoById(luogoId));
+          for (let i = 0; i < feats.length; i++) {
+            const raw = feats[i];
+            const fid = String(raw && (raw.id != null ? raw.id : raw));
+            const luogoId =
+              buildingTint.toLuogo[fid] ||
+              buildingTint.toLuogo[fid.replace(/^osm-w/i, "")];
+            if (luogoId) {
+              onLuogoClick(luogoById(luogoId));
+              return;
+            }
+          }
+          hideLuogoCard();
+          state.selectedId = null;
+          paintState();
         });
-        osmb.on("idle", applyBuildingTint);
         window.setTimeout(() => {
           if (!osmb) return;
           osmb.setSize(box.clientWidth, box.clientHeight);
+          syncEventMarks();
         }, 200);
-        loadEventBuildings();
       }
 
       function destroyOsmb() {
         buildingTiles = null;
         detailedLayer = null;
+        eventLayer = null;
+        eventMarkers = [];
+        const marks = document.getElementById("event-marks");
+        if (marks) marks.innerHTML = "";
         if (osmb && typeof osmb.destroy === "function") {
           try {
             osmb.destroy();
@@ -885,17 +1227,14 @@
       function renderA() {
         const app = document.getElementById("app");
         app.innerHTML =
-          '<div id="map"></div>' +
-          '<div class="a-bar"><strong>Ascoli Piceno</strong><span>Chiese a tetto a capanna, case e palazzi come il viewer OSM Buildings. Arancio = Evento in corso.</span></div>' +
+          mapStageHtml() +
           '<div class="luogo-card" id="luogo-card"></div>' +
-          '<button type="button" class="a-fab" id="fab">Proponi un Evento</button>' +
           formModalHtml();
         makeOsmb((luogo) => {
           state.selectedId = luogo.id;
           paintState();
           showLuogoCard(luogo);
         });
-        document.getElementById("fab").onclick = () => openForm("fab-globale");
         document.getElementById("close-form").onclick = closeForm;
       }
 
@@ -906,7 +1245,9 @@
           '<div class="b-side">' +
           '<div class="b-head"><h1>Luoghi</h1><button type="button" id="b-proponi">Proponi un Evento</button></div>' +
           '<div id="b-list"></div></div>' +
-          '<div class="b-map"><div id="map"></div><div class="luogo-card" id="luogo-card"></div></div></div>' +
+          '<div class="b-map">' +
+          mapStageHtml() +
+          '<div class="luogo-card" id="luogo-card"></div></div></div>' +
           formModalHtml();
         const list = document.getElementById("b-list");
         LUOGHI.forEach((luogo) => {
@@ -948,8 +1289,8 @@
       function renderC() {
         const app = document.getElementById("app");
         app.innerHTML =
-          '<div id="map"></div>' +
-          '<div class="c-hint">Tocca un pin o un edificio colorato</div>' +
+          mapStageHtml() +
+          '<div class="c-hint">Tocca un edificio colorato</div>' +
           '<div class="sheet" id="sheet"></div>' +
           formModalHtml();
         makeOsmb((luogo) => {
@@ -973,26 +1314,22 @@
 
       function render() {
         destroyOsmb();
-        buildingTint.inCorso = {};
-        buildingTint.futuro = {};
         buildingTint.toLuogo = {};
+        buildingTint.color = {};
         window.__buildingsAppear = emptyAppear(performance.now());
         state.variant = currentVariant();
+        document.body.dataset.variant = state.variant;
         if (state.variant === "A") renderA();
         else if (state.variant === "B") renderB();
         else renderC();
         paintState();
       }
 
-      document.getElementById("prev").onclick = () => cycle(-1);
-      document.getElementById("next").onclick = () => cycle(1);
-      document.addEventListener("keydown", (e) => {
-        const t = e.target;
-        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-        if (e.key === "ArrowLeft") cycle(-1);
-        if (e.key === "ArrowRight") cycle(1);
+      document.getElementById("proponi").onclick = () => openForm("header");
+      window.addEventListener("resize", () => {
+        const box = document.getElementById("map");
+        if (osmb && box) osmb.setSize(box.clientWidth, box.clientHeight);
       });
-
       render();
     </script>
   </body>

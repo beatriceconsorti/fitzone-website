@@ -12,7 +12,7 @@ Da mostrare in un prototipo grezzo (outline o stub), non il sito finito:
 
 - Inquadratura sul centro storico di Ascoli Piceno ([Quale comune è il Territorio](01-quale-comune.md)).
 - Pin dei Luoghi di semina, con alcuni Eventi già attaccati ([Cosa c'è sulla mappa al primo avvio](05-contenuto-iniziale-mappa.md)); i nomi precisi restano in [Quali Luoghi e Eventi di semina per Ascoli Piceno](10-luoghi-semina-ascoli.md).
-- Tap sul pin: **solo popup** sulla mappa (nome, Eventi di quel Luogo). Niente pagina di dettaglio ([Dettaglio Luogo o solo popup](12-dettaglio-luogo-o-popup.md)).
+- Tap sul pin: **solo popup** sulla mappa (nome, Eventi di quel Luogo con breve descrizione). Niente pagina di dettaglio ([Dettaglio Luogo o solo popup](12-dettaglio-luogo-o-popup.md)).
 - Come si distinguono un Luogo senza Eventi e un Luogo con Eventi in corso.
 - Da dove il Visitatore apre il form di Proposta (sulla mappa, da un Luogo, da una pagina a parte). Nessun Account: vedi [Come si autentica il Visitatore](02-autenticazione-visitatore.md).
 

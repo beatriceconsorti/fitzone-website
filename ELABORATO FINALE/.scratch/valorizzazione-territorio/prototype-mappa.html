@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROTOTIPO — Come si esplora la mappa</title>
+    <!--
+      Three variants of map exploration, switchable via ?variant=, throwaway for ticket 09.
+      OSM Buildings 4.x WebGL (tilt 3D). Edifici con Evento in corso colorati.
+      A = card sul tap + pulsante globale Proponi
+      B = elenco + mappa, Proponi nell’intestazione
+      C = bottom sheet sul pin, Proponi da quel Luogo
+      Nomi di semina: stand-in finché il ticket 10 non elenca i pin veri.
+    -->
+    <link rel="stylesheet" href="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css" />
+    <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
+    <style>
+      :root {
+        --ink: #1c1917;
+        --muted: #78716c;
+        --paper: #fafaf9;
+        --line: #e7e5e4;
+        --event: #b45309;
+        --empty: #57534e;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; font-family: Georgia, "Times New Roman", serif; color: var(--ink); background: #fff; }
+      .proto-banner {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 2000;
+        background: #111; color: #fde68a; font-family: ui-monospace, monospace;
+        font-size: 12px; padding: 6px 12px; letter-spacing: 0.04em;
+      }
+      #app { position: fixed; inset: 36px 0 88px 0; }
+      #map { width: 100%; height: 100%; background: #efe8e0; min-height: 240px; }
+
+      /* A */
+      .a-bar {
+        position: absolute; top: 12px; left: 12px; z-index: 500;
+        background: #fff; padding: 10px 14px; border: 1px solid var(--line);
+        max-width: 18rem;
+      }
+      .a-bar strong { display: block; font-size: 1.05rem; }
+      .a-bar span { font-size: 0.8rem; color: var(--muted); font-family: system-ui, sans-serif; }
+      .a-fab {
+        position: absolute; right: 16px; bottom: 16px; z-index: 500;
+        border: 0; background: var(--ink); color: #fff;
+        font-family: system-ui, sans-serif; font-size: 0.95rem;
+        padding: 14px 18px; cursor: pointer;
+      }
+
+      /* B */
+      .b-wrap { display: grid; grid-template-columns: 280px 1fr; height: 100%; }
+      .b-side { overflow: auto; border-right: 1px solid var(--line); background: var(--paper); }
+      .b-head { padding: 14px 14px 8px; border-bottom: 1px solid var(--line); }
+      .b-head h1 { margin: 0 0 8px; font-size: 1.2rem; font-weight: 600; }
+      .b-head button {
+        font-family: system-ui, sans-serif; font-size: 0.8rem;
+        border: 1px solid var(--ink); background: #fff; padding: 8px 10px; cursor: pointer; width: 100%;
+      }
+      .b-item {
+        display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+        background: transparent; padding: 12px 14px; cursor: pointer; font-family: Georgia, serif;
+      }
+      .b-item.is-on { background: #fff7ed; }
+      .b-item .name { font-size: 1rem; }
+      .b-item .meta { font-size: 0.75rem; color: var(--muted); font-family: system-ui, sans-serif; margin-top: 4px; }
+      .b-map { position: relative; }
+
+      /* C */
+      .c-hint {
+        position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+        z-index: 500; background: #fff; padding: 8px 12px; font-size: 0.85rem;
+        font-family: system-ui, sans-serif; border: 1px solid var(--line); white-space: nowrap;
+      }
+      .sheet {
+        position: absolute; left: 0; right: 0; bottom: 0; z-index: 600;
+        background: #fff; border-top: 2px solid var(--ink);
+        max-height: 48%; overflow: auto; padding: 16px 16px 20px;
+        display: none;
+      }
+      .sheet.is-open { display: block; }
+      .sheet h2 { margin: 0 0 6px; font-size: 1.25rem; }
+      .sheet .when { font-family: system-ui, sans-serif; font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+      .sheet ul { margin: 0 0 12px; padding-left: 1.1rem; }
+      .sheet button, .sheet .ghost {
+        font-family: system-ui, sans-serif; font-size: 0.9rem; padding: 10px 12px;
+        border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; width: 100%;
+      }
+      .sheet .ghost { background: #fff; color: var(--ink); margin-top: 8px; }
+
+      .popup-ev { margin: 6px 0 0; padding: 0; list-style: none; font-family: system-ui, sans-serif; font-size: 0.8rem; }
+      .popup-ev li { margin: 4px 0; }
+      .tag { display: inline-block; font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 6px; }
+      .tag-now { color: var(--event); }
+      .tag-soon { color: var(--muted); }
+
+      .luogo-card {
+        position: absolute; left: 12px; bottom: 16px; z-index: 550;
+        background: #fff; border: 1px solid var(--ink); padding: 12px 14px;
+        width: min(22rem, calc(100% - 24px)); display: none; max-height: 40%; overflow: auto;
+      }
+      .luogo-card.is-open { display: block; }
+      .luogo-card h2 { margin: 0 0 6px; font-size: 1.1rem; }
+      .modal {
+        display: none; position: absolute; inset: 0; z-index: 800;
+        background: rgba(28, 25, 23, 0.45); align-items: center; justify-content: center;
+      }
+      .modal.is-open { display: flex; }
+      .modal-card {
+        background: #fff; padding: 20px; width: min(22rem, 92%);
+        border: 1px solid var(--ink);
+      }
+      .modal-card h2 { margin: 0 0 8px; font-size: 1.15rem; }
+      .modal-card p { margin: 0 0 14px; font-size: 0.9rem; color: var(--muted); font-family: system-ui, sans-serif; }
+      .modal-card button { font-family: system-ui, sans-serif; padding: 8px 12px; cursor: pointer; }
+
+      #state-strip {
+        position: fixed; left: 0; right: 0; bottom: 52px; z-index: 3000;
+        background: #1c1917; color: #e7e5e4; font-family: ui-monospace, monospace;
+        font-size: 11px; padding: 6px 12px; white-space: nowrap; overflow: auto;
+      }
+      #switcher {
+        position: fixed; left: 50%; bottom: 8px; transform: translateX(-50%);
+        z-index: 4000; display: flex; gap: 8px; align-items: center;
+        background: #0c0a09; color: #fafaf9; padding: 8px 10px;
+        font-family: system-ui, sans-serif; font-size: 13px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      }
+      #switcher button {
+        background: #fafaf9; color: #0c0a09; border: 0; width: 32px; height: 32px;
+        cursor: pointer; font-size: 16px;
+      }
+      #switcher .lab { min-width: 14rem; text-align: center; }
+
+      @media (max-width: 720px) {
+        .b-wrap { grid-template-columns: 1fr; grid-template-rows: 38% 1fr; }
+        .b-side { border-right: 0; border-bottom: 1px solid var(--line); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="proto-banner">PROTOTIPO THROWAWAY · ticket Come si esplora la mappa · non è il Sito</div>
+    <div id="app"></div>
+    <div id="state-strip"></div>
+    <div id="switcher" aria-label="Varianti prototipo">
+      <button type="button" id="prev" aria-label="Variante precedente">←</button>
+      <div class="lab" id="lab"></div>
+      <button type="button" id="next" aria-label="Variante successiva">→</button>
+    </div>
+
+    <script>
+      const VARIANTS = [
+        { key: "A", name: "Popup + Proponi globale" },
+        { key: "B", name: "Elenco + mappa" },
+        { key: "C", name: "Bottom sheet sul pin" },
+      ];
+      const TODAY = "2026-09-11";
+      const LUOGHI = [
+        {
+          id: "popolo",
+          nome: "Piazza del Popolo",
+          lat: 42.85472,
+          lng: 13.57505,
+          eventi: [{ titolo: "Mercato del sabato", data: "2026-09-12" }],
+        },
+        {
+          id: "arringo",
+          nome: "Piazza Arringo",
+          lat: 42.85355,
+          lng: 13.57685,
+          eventi: [{ titolo: "Letture in piazza", data: "2026-09-11" }],
+        },
+        {
+          id: "cecco",
+          nome: "Ponte di Cecco",
+          lat: 42.85435,
+          lng: 13.58055,
+          eventi: [],
+        },
+        {
+          id: "teatro",
+          nome: "Teatro Ventidio Basso",
+          lat: 42.85415,
+          lng: 13.57355,
+          eventi: [{ titolo: "Prova aperta", data: "2026-09-20" }],
+        },
+        {
+          id: "duomo",
+          nome: "Cattedrale di Sant'Emidio",
+          lat: 42.85325,
+          lng: 13.57705,
+          eventi: [],
+        },
+      ];
+
+      const state = {
+        variant: "A",
+        selectedId: null,
+        formOpen: false,
+        formFrom: null,
+      };
+
+      function hasInCorso(luogo) {
+        return luogo.eventi.some((e) => e.data === TODAY);
+      }
+      function hasFuturi(luogo) {
+        return luogo.eventi.some((e) => e.data > TODAY);
+      }
+      function pinKind(luogo) {
+        if (hasInCorso(luogo)) return "in-corso";
+        if (luogo.eventi.length) return "con-eventi";
+        return "vuoto";
+      }
+      function luogoById(id) {
+        return LUOGHI.find((l) => l.id === id);
+      }
+      function etichettaData(data) {
+        if (data === TODAY) return "in corso";
+        if (data > TODAY) return "prossimo";
+        return "passato";
+      }
+
+      function currentVariant() {
+        const q = new URLSearchParams(location.search).get("variant");
+        const h = new URLSearchParams(location.hash.replace(/^#/, "")).get("variant");
+        const p = q || h || "A";
+        return VARIANTS.some((v) => v.key === p) ? p : "A";
+      }
+      function setVariant(key) {
+        const url = new URL(location.href);
+        url.searchParams.set("variant", key);
+        url.hash = "variant=" + key;
+        history.replaceState({}, "", url);
+        state.variant = key;
+        state.selectedId = null;
+        state.formOpen = false;
+        state.formFrom = null;
+        render();
+      }
+      function cycle(dir) {
+        const i = VARIANTS.findIndex((v) => v.key === state.variant);
+        const n = (i + dir + VARIANTS.length) % VARIANTS.length;
+        setVariant(VARIANTS[n].key);
+      }
+
+      function paintState() {
+        const luogo = luogoById(state.selectedId);
+        document.getElementById("state-strip").textContent =
+          "stato  variant=" +
+          state.variant +
+          "  selected=" +
+          (luogo ? luogo.nome : "—") +
+          "  pin=" +
+          (luogo ? pinKind(luogo) : "—") +
+          "  formOpen=" +
+          state.formOpen +
+          "  formFrom=" +
+          (state.formFrom || "—");
+        const v = VARIANTS.find((x) => x.key === state.variant);
+        document.getElementById("lab").textContent = v.key + " (" + v.name + ")";
+      }
+
+      function listaEventi(luogo) {
+        if (!luogo.eventi.length) return "<p class='when'>Nessun Evento su questo Luogo.</p>";
+        return (
+          "<ul class='popup-ev'>" +
+          luogo.eventi
+            .map((e) => {
+              const k = etichettaData(e.data);
+              const cls = k === "in corso" ? "tag-now" : "tag-soon";
+              return (
+                "<li><span class='tag " +
+                cls +
+                "'>" +
+                k +
+                "</span>" +
+                e.titolo +
+                " · " +
+                e.data +
+                "</li>"
+              );
+            })
+            .join("") +
+          "</ul>"
+        );
+      }
+
+      function markerColor(luogo) {
+        const k = pinKind(luogo);
+        if (k === "in-corso") return "#c2410c";
+        if (k === "con-eventi") return "#1c1917";
+        return "#a8a29e";
+      }
+
+      const COLOR_IN_CORSO = "#ff6a1a";
+      const COLOR_FUTURO = "#44403c";
+      const BUILDING_TILES =
+        "https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json";
+      const BUILDING_CACHE_KEY = "ascoli-buildings-v1";
+      const buildingTint = { inCorso: {}, futuro: {}, toLuogo: {} };
+      let osmb = null;
+      let onLuogoClick = null;
+      let buildingTiles = null;
+      let detailedLayer = null;
+      window.__buildingsAppear = {
+        t0: performance.now(),
+        osmbMs: null,
+        sceneReadyMs: null,
+        how: null,
+        overpassMs: null,
+        geojsonMs: null,
+        count: 0,
+        fallbackTiles: false,
+      };
+
+      function emptyAppear(now) {
+        return {
+          t0: now,
+          osmbMs: null,
+          sceneReadyMs: null,
+          how: null,
+          overpassMs: null,
+          geojsonMs: null,
+          count: 0,
+          fallbackTiles: false,
+        };
+      }
+
+      function markBuildingsScene(how) {
+        const a = window.__buildingsAppear;
+        if (!a || a.sceneReadyMs != null) return;
+        a.sceneReadyMs = performance.now();
+        a.how = how;
+      }
+
+      function readBuildingCache() {
+        try {
+          const raw = localStorage.getItem(BUILDING_CACHE_KEY);
+          if (!raw) return null;
+          const fc = JSON.parse(raw);
+          if (!fc || !fc.features || !fc.features.length) return null;
+          return fc;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function writeBuildingCache(fc) {
+        try {
+          localStorage.setItem(BUILDING_CACHE_KEY, JSON.stringify(fc));
+        } catch (err) {}
+      }
+
+      function dropBuildingTiles() {
+        if (buildingTiles && typeof buildingTiles.destroy === "function") {
+          try {
+            buildingTiles.destroy();
+          } catch (err) {}
+        }
+        buildingTiles = null;
+        if (osmb) osmb.dataGrid = null;
+      }
+
+      function showDetailedBuildings(fc) {
+        if (!osmb || !fc || !fc.features || !fc.features.length) return;
+        dropBuildingTiles();
+        if (detailedLayer && typeof detailedLayer.destroy === "function") {
+          try {
+            detailedLayer.destroy();
+          } catch (err) {}
+        }
+        detailedLayer = osmb.addGeoJSON(fc, { fadeIn: false });
+        markBuildingsScene("geojson");
+        if (window.__buildingsAppear) {
+          window.__buildingsAppear.geojsonMs = performance.now();
+          window.__buildingsAppear.count = fc.features.length;
+        }
+      }
+
+      function applyBuildingTint() {
+        if (!osmb || typeof osmb.highlight !== "function") return;
+        osmb.highlight((item) => {
+          const id = String(item && item.id);
+          const alt = id.replace(/^osm-w/i, "");
+          if (buildingTint.inCorso[id] || buildingTint.inCorso[alt]) return COLOR_IN_CORSO;
+          if (buildingTint.futuro[id] || buildingTint.futuro[alt]) return COLOR_FUTURO;
+          return false;
+        });
+      }
+
+      function loadEventBuildings() {
+        const pairs = LUOGHI.map((luogo) => {
+          const k = pinKind(luogo);
+          if (k === "vuoto" || k !== "in-corso") return null;
+          return { luogo, kind: k };
+        }).filter(Boolean);
+        if (!pairs.length) return Promise.resolve();
+        const around = pairs
+          .map(
+            (p) =>
+              'way["building"](around:40,' + p.luogo.lat + "," + p.luogo.lng + ");"
+          )
+          .join("\n");
+        const q =
+          "[out:json][timeout:20];(" + around + ");out ids center;";
+        const url =
+          "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(q);
+        return fetch(url)
+          .then((r) => r.json())
+          .then((data) => {
+            const els = (data && data.elements) || [];
+            els.forEach((el) => {
+              const id = "osm-w" + el.id;
+              const raw = String(el.id);
+              let best = null;
+              let bestD = 1e9;
+              pairs.forEach((p) => {
+                const c = el.center || {};
+                const d =
+                  Math.abs((c.lat || 0) - p.luogo.lat) +
+                  Math.abs((c.lon || 0) - p.luogo.lng);
+                if (d < bestD) {
+                  bestD = d;
+                  best = p;
+                }
+              });
+              if (!best) return;
+              buildingTint.toLuogo[id] = best.luogo.id;
+              buildingTint.toLuogo[raw] = best.luogo.id;
+              if (best.kind === "in-corso") {
+                buildingTint.inCorso[id] = true;
+                buildingTint.inCorso[raw] = true;
+              } else {
+                buildingTint.futuro[id] = true;
+                buildingTint.futuro[raw] = true;
+              }
+            });
+            applyBuildingTint();
+          })
+          .catch(() => {});
+      }
+
+      function wayRing(el) {
+        const pts = el.geometry || [];
+        const coords = pts.map((p) => [p.lon, p.lat]);
+        if (!coords.length) return null;
+        const a = coords[0];
+        const b = coords[coords.length - 1];
+        if (a[0] !== b[0] || a[1] !== b[1]) coords.push([a[0], a[1]]);
+        if (coords.length < 4) return null;
+        return coords;
+      }
+
+      function ringCentroid(ring) {
+        let x = 0;
+        let y = 0;
+        const n = ring.length - 1;
+        for (let i = 0; i < n; i++) {
+          x += ring[i][0];
+          y += ring[i][1];
+        }
+        return [x / n, y / n];
+      }
+
+      function ringBBox(ring) {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        for (let i = 0; i < ring.length - 1; i++) {
+          minX = Math.min(minX, ring[i][0]);
+          minY = Math.min(minY, ring[i][1]);
+          maxX = Math.max(maxX, ring[i][0]);
+          maxY = Math.max(maxY, ring[i][1]);
+        }
+        return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+      }
+
+      function orientedRect(ring) {
+        let best = 0;
+        let ax = 1;
+        let ay = 0;
+        for (let i = 0; i < ring.length - 1; i++) {
+          const dx = ring[i + 1][0] - ring[i][0];
+          const dy = ring[i + 1][1] - ring[i][1];
+          const len = Math.hypot(dx, dy);
+          if (len > best) {
+            best = len;
+            ax = dx / len;
+            ay = dy / len;
+          }
+        }
+        const px = -ay;
+        const py = ax;
+        let minA = Infinity;
+        let maxA = -Infinity;
+        let minP = Infinity;
+        let maxP = -Infinity;
+        for (let i = 0; i < ring.length - 1; i++) {
+          const a = ring[i][0] * ax + ring[i][1] * ay;
+          const p = ring[i][0] * px + ring[i][1] * py;
+          minA = Math.min(minA, a);
+          maxA = Math.max(maxA, a);
+          minP = Math.min(minP, p);
+          maxP = Math.max(maxP, p);
+        }
+        function pt(a, p) {
+          return [a * ax + p * px, a * ay + p * py];
+        }
+        const rect = [pt(minA, minP), pt(maxA, minP), pt(maxA, maxP), pt(minA, maxP)];
+        rect.push(rect[0]);
+        return rect;
+      }
+
+      function roofDirectionOf(tags, ring) {
+        const raw = String(tags["roof:direction"] || "");
+        const num = parseFloat(raw);
+        if (!isNaN(num) && raw !== "") return num;
+        const compass = {
+          N: 0,
+          NNE: 22.5,
+          NE: 45,
+          ENE: 67.5,
+          E: 90,
+          ESE: 112.5,
+          SE: 135,
+          SSE: 157.5,
+          S: 180,
+          SSW: 202.5,
+          SW: 225,
+          WSW: 247.5,
+          W: 270,
+          WNW: 292.5,
+          NW: 315,
+          NNW: 337.5,
+        };
+        if (compass[raw.toUpperCase()] != null) return compass[raw.toUpperCase()];
+        let best = 0;
+        let bearing = 90;
+        for (let i = 0; i < ring.length - 1; i++) {
+          const dx = ring[i + 1][0] - ring[i][0];
+          const dy = ring[i + 1][1] - ring[i][1];
+          const len = dx * dx + dy * dy;
+          if (len > best) {
+            best = len;
+            let deg = (Math.atan2(dx, dy) * 180) / Math.PI;
+            if (deg < 0) deg += 360;
+            bearing = (deg + 90) % 360;
+          }
+        }
+        return bearing;
+      }
+
+      function mapRoofShape(raw) {
+        const s = String(raw || "").toLowerCase();
+        if (!s) return "";
+        if (s === "pyramidal") return "pyramid";
+        if (s === "hipped" || s === "half-hipped") return "gabled";
+        return s;
+      }
+
+      function isChurch(tags) {
+        const b = (tags.building || "") + " " + (tags["building:part"] || "");
+        const n = tags.name || "";
+        return (
+          tags.amenity === "place_of_worship" ||
+          /church|cathedral|chapel|basilica/i.test(b) ||
+          /chiesa|duomo|cattedrale/i.test(n)
+        );
+      }
+
+      function isHouse(tags) {
+        const b = tags.building || "";
+        return /^(house|detached|terrace|semidetached_house|bungalow|villa|residential)$/i.test(
+          b
+        );
+      }
+
+      function shortSideMeters(ring) {
+        const bb = ringBBox(ring);
+        const midLat = (bb.minY + bb.maxY) / 2;
+        const dlon =
+          (bb.maxX - bb.minX) * 111320 * Math.cos((midLat * Math.PI) / 180);
+        const dlat = (bb.maxY - bb.minY) * 110540;
+        return Math.min(dlon, dlat);
+      }
+
+      function pitchHeight(ring, minH) {
+        const w = shortSideMeters(ring);
+        return Math.max(minH, Math.min(8.5, w * 0.33));
+      }
+
+      function needsRidge(shape) {
+        return (
+          shape === "gabled" ||
+          shape === "skillion" ||
+          shape === "gambrel" ||
+          shape === "mansard"
+        );
+      }
+
+      function modelProperties(tags, ring) {
+        const levels = parseFloat(tags["building:levels"]) || 0;
+        const taggedHeight = parseFloat(tags.height) || 0;
+        let roofShape = mapRoofShape(tags["roof:shape"]);
+        let roofHeight = parseFloat(tags["roof:height"]) || 0;
+        let walls = taggedHeight;
+        let color = "rgb(220, 210, 200)";
+        let roofColor = "rgb(186, 142, 110)";
+        if (isChurch(tags)) {
+          if (!walls) walls = /duomo|cattedrale/i.test(tags.name || "") ? 22 : 12;
+          if (!roofShape) roofShape = "gabled";
+          if (!roofHeight) roofHeight = pitchHeight(ring, Math.max(5.5, walls * 0.28));
+          color = "rgb(228, 218, 200)";
+          roofColor = "rgb(132, 78, 58)";
+        } else if (isHouse(tags)) {
+          if (!walls) walls = Math.max(6.5, (levels || 2) * 3.1);
+          if (!roofShape) roofShape = "gabled";
+          if (!roofHeight) roofHeight = pitchHeight(ring, 3.2);
+          roofColor = "rgb(168, 96, 72)";
+        } else if (/apartments/i.test(tags.building || "")) {
+          if (!walls) walls = Math.max(12, (levels || 4) * 3.1);
+          if (!roofShape) roofShape = levels > 5 ? "flat" : "gabled";
+          if (!roofHeight && roofShape !== "flat") roofHeight = pitchHeight(ring, 3);
+        } else {
+          if (!walls) walls = Math.max(8, (levels || 3) * 3.1);
+          if (!roofShape) roofShape = levels <= 4 ? "gabled" : "flat";
+          if (!roofHeight && roofShape !== "flat") roofHeight = pitchHeight(ring, 3);
+        }
+        const height = taggedHeight
+          ? taggedHeight
+          : walls + (roofShape === "flat" ? 0 : roofHeight);
+        if (taggedHeight && roofHeight) {
+          roofHeight = Math.min(roofHeight, taggedHeight * 0.45);
+        }
+        const props = { height: height, color: color, roofColor: roofColor };
+        if (levels) props.levels = levels;
+        if (roofShape) props.roofShape = roofShape;
+        if (roofHeight) props.roofHeight = roofHeight;
+        if (needsRidge(roofShape)) props.roofDirection = roofDirectionOf(tags, ring);
+        if (tags.min_height) props.minHeight = parseFloat(tags.min_height);
+        return props;
+      }
+
+      function churchCupola(ring, baseHeight, id) {
+        const c = ringCentroid(ring);
+        const d = 0.000045;
+        const sq = [
+          [c[0] - d, c[1] - d],
+          [c[0] + d, c[1] - d],
+          [c[0] + d, c[1] + d],
+          [c[0] - d, c[1] + d],
+          [c[0] - d, c[1] - d],
+        ];
+        return {
+          type: "Feature",
+          id: id + "-cupola",
+          properties: {
+            height: baseHeight + 10,
+            minHeight: Math.max(0, baseHeight - 0.4),
+            roofShape: "dome",
+            roofHeight: 9,
+            color: "rgb(228, 218, 200)",
+            roofColor: "rgb(132, 78, 58)",
+          },
+          geometry: { type: "Polygon", coordinates: [sq] },
+        };
+      }
+
+      function footprintForRoof(ring, tags) {
+        if (isChurch(tags)) return ring;
+        if (ring.length - 1 > 8) return orientedRect(ring);
+        return ring;
+      }
+
+      function loadDetailedModels() {
+        const q =
+          '[out:json][timeout:25];(way["building"](42.851,13.570,42.857,13.582);way["building:part"](42.851,13.570,42.857,13.582););out geom;';
+        const urls = [
+          "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(q),
+          "https://overpass.kumi.systems/api/interpreter?data=" + encodeURIComponent(q),
+        ];
+        function pull(i) {
+          if (i >= urls.length || !osmb) return;
+          fetch(urls[i])
+            .then((r) => {
+              if (!r.ok) throw new Error("overpass");
+              return r.json();
+            })
+            .then((data) => {
+              if (window.__buildingsAppear && window.__buildingsAppear.overpassMs == null) {
+                window.__buildingsAppear.overpassMs = performance.now();
+              }
+              const els = (data && data.elements) || [];
+              const items = [];
+              els.forEach((el) => {
+                const tags = el.tags || {};
+                if (!tags.building && !tags["building:part"]) return;
+                const ring = wayRing(el);
+                if (!ring) return;
+                items.push({
+                  id: "osm-w" + el.id,
+                  tags: tags,
+                  ring: ring,
+                  part: !!tags["building:part"],
+                });
+              });
+              const parts = items.filter((it) => it.part);
+              const features = [];
+              items.forEach((it) => {
+                if (
+                  !it.part &&
+                  parts.length &&
+                  (isChurch(it.tags) || it.tags["building:parts"])
+                ) {
+                  const bb = ringBBox(it.ring);
+                  let inside = 0;
+                  parts.forEach((p) => {
+                    const c = ringCentroid(p.ring);
+                    if (
+                      c[0] >= bb.minX &&
+                      c[0] <= bb.maxX &&
+                      c[1] >= bb.minY &&
+                      c[1] <= bb.maxY
+                    ) {
+                      inside += 1;
+                    }
+                  });
+                  if (inside >= 2) return;
+                }
+                const ring = footprintForRoof(it.ring, it.tags);
+                const props = modelProperties(it.tags, ring);
+                features.push({
+                  type: "Feature",
+                  id: it.id,
+                  properties: props,
+                  geometry: { type: "Polygon", coordinates: [ring] },
+                });
+                if (isChurch(it.tags)) {
+                  features.push(churchCupola(it.ring, props.height, it.id));
+                }
+              });
+              if (!osmb) return;
+              if (!features.length) {
+                if (!buildingTiles) {
+                  buildingTiles = osmb.addGeoJSONTiles(BUILDING_TILES);
+                  markBuildingsScene("tiles");
+                }
+                if (window.__buildingsAppear) {
+                  window.__buildingsAppear.fallbackTiles = true;
+                }
+                return;
+              }
+              const fc = { type: "FeatureCollection", features: features };
+              writeBuildingCache(fc);
+              showDetailedBuildings(fc);
+            })
+            .catch(() => {
+              if (i + 1 < urls.length) pull(i + 1);
+              else if (osmb && !buildingTiles && !detailedLayer) {
+                buildingTiles = osmb.addGeoJSONTiles(BUILDING_TILES);
+                markBuildingsScene("tiles");
+              }
+            });
+        }
+        pull(0);
+      }
+
+      function showLuogoCard(luogo) {
+        const card = document.getElementById("luogo-card");
+        if (!card) return;
+        card.classList.add("is-open");
+        card.innerHTML =
+          "<h2>" + luogo.nome + "</h2>" + listaEventi(luogo);
+      }
+
+      function hideLuogoCard() {
+        const card = document.getElementById("luogo-card");
+        if (card) {
+          card.classList.remove("is-open");
+          card.innerHTML = "";
+        }
+      }
+
+      function makeOsmb(onClick) {
+        onLuogoClick = onClick;
+        const box = document.getElementById("map");
+        osmb = new OSMBuildings({
+          container: "map",
+          position: { latitude: 42.8544, longitude: 13.5762 },
+          zoom: 16.0,
+          minZoom: 15,
+          maxZoom: 20,
+          tilt: 45,
+          rotation: -22,
+          effects: ["shadows"],
+          backgroundColor: "#efe8e0",
+          fogColor: "#e8e0d8",
+          highlightColor: COLOR_IN_CORSO,
+          style: { color: "rgb(220, 210, 200)" },
+          attribution: "© Data OpenStreetMap © Map OSM Buildings",
+        });
+        if (window.__buildingsAppear) {
+          window.__buildingsAppear.osmbMs = performance.now();
+        }
+        osmb.addMapTiles("https://tile-a.openstreetmap.fr/hot/{z}/{x}/{y}.png");
+        if (typeof osmb.setDate === "function") {
+          osmb.setDate(new Date(2026, 8, 11, 16, 0, 0));
+        }
+        osmb.setTilt(45);
+        osmb.setRotation(-22);
+        osmb.setZoom(16.0);
+        const cached = readBuildingCache();
+        if (cached) {
+          showDetailedBuildings(cached);
+        } else {
+          buildingTiles = osmb.addGeoJSONTiles(BUILDING_TILES);
+          markBuildingsScene("tiles");
+        }
+        loadDetailedModels();
+        LUOGHI.forEach((luogo) => {
+          osmb.addMarker(
+            { latitude: luogo.lat, longitude: luogo.lng, altitude: 12 },
+            { luogoId: luogo.id },
+            { color: markerColor(luogo) }
+          );
+        });
+        osmb.on("pointerup", (e) => {
+          if (e.marker && e.marker.data && e.marker.data.luogoId) {
+            onLuogoClick(luogoById(e.marker.data.luogoId));
+            return;
+          }
+          const feats = e.features || [];
+          const raw = feats[0];
+          const fid = raw && (raw.id != null ? raw.id : raw);
+          const luogoId = buildingTint.toLuogo[String(fid)];
+          if (luogoId) onLuogoClick(luogoById(luogoId));
+        });
+        osmb.on("idle", applyBuildingTint);
+        window.setTimeout(() => {
+          if (!osmb) return;
+          osmb.setSize(box.clientWidth, box.clientHeight);
+        }, 200);
+        loadEventBuildings();
+      }
+
+      function destroyOsmb() {
+        buildingTiles = null;
+        detailedLayer = null;
+        if (osmb && typeof osmb.destroy === "function") {
+          try {
+            osmb.destroy();
+          } catch (err) {}
+        }
+        osmb = null;
+        onLuogoClick = null;
+      }
+
+      function openForm(from) {
+        state.formOpen = true;
+        state.formFrom = from;
+        paintState();
+        const modal = document.getElementById("form-modal");
+        if (modal) modal.classList.add("is-open");
+      }
+      function closeForm() {
+        state.formOpen = false;
+        state.formFrom = null;
+        paintState();
+        const modal = document.getElementById("form-modal");
+        if (modal) modal.classList.remove("is-open");
+      }
+
+      function formModalHtml() {
+        return (
+          '<div class="modal" id="form-modal">' +
+          '<div class="modal-card">' +
+          "<h2>Proposta (stub)</h2>" +
+          "<p>Qui andrà il form Web3Forms. Questo prototipo chiede solo <em>da dove</em> si apre, non i campi.</p>" +
+          '<button type="button" id="close-form">Chiudi</button>' +
+          "</div></div>"
+        );
+      }
+
+      function renderA() {
+        const app = document.getElementById("app");
+        app.innerHTML =
+          '<div id="map"></div>' +
+          '<div class="a-bar"><strong>Ascoli Piceno</strong><span>Chiese a tetto a capanna, case e palazzi come il viewer OSM Buildings. Arancio = Evento in corso.</span></div>' +
+          '<div class="luogo-card" id="luogo-card"></div>' +
+          '<button type="button" class="a-fab" id="fab">Proponi un Evento</button>' +
+          formModalHtml();
+        makeOsmb((luogo) => {
+          state.selectedId = luogo.id;
+          paintState();
+          showLuogoCard(luogo);
+        });
+        document.getElementById("fab").onclick = () => openForm("fab-globale");
+        document.getElementById("close-form").onclick = closeForm;
+      }
+
+      function renderB() {
+        const app = document.getElementById("app");
+        app.innerHTML =
+          '<div class="b-wrap">' +
+          '<div class="b-side">' +
+          '<div class="b-head"><h1>Luoghi</h1><button type="button" id="b-proponi">Proponi un Evento</button></div>' +
+          '<div id="b-list"></div></div>' +
+          '<div class="b-map"><div id="map"></div><div class="luogo-card" id="luogo-card"></div></div></div>' +
+          formModalHtml();
+        const list = document.getElementById("b-list");
+        LUOGHI.forEach((luogo) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "b-item";
+          btn.dataset.id = luogo.id;
+          const kind = pinKind(luogo);
+          const meta =
+            kind === "in-corso"
+              ? "Evento in corso"
+              : kind === "con-eventi"
+                ? luogo.eventi.length + " Evento"
+                : "Nessun Evento";
+          btn.innerHTML =
+            '<div class="name">' + luogo.nome + '</div><div class="meta">' + meta + "</div>";
+          btn.onclick = () => selectB(luogo.id);
+          list.appendChild(btn);
+        });
+        makeOsmb((luogo) => selectB(luogo.id));
+        document.getElementById("b-proponi").onclick = () => openForm("intestazione");
+        document.getElementById("close-form").onclick = closeForm;
+      }
+
+      function selectB(id) {
+        state.selectedId = id;
+        paintState();
+        document.querySelectorAll(".b-item").forEach((el) => {
+          el.classList.toggle("is-on", el.dataset.id === id);
+        });
+        const luogo = luogoById(id);
+        if (osmb) {
+          osmb.setPosition({ latitude: luogo.lat, longitude: luogo.lng });
+          osmb.setZoom(17.2);
+        }
+        showLuogoCard(luogo);
+      }
+
+      function renderC() {
+        const app = document.getElementById("app");
+        app.innerHTML =
+          '<div id="map"></div>' +
+          '<div class="c-hint">Tocca un pin o un edificio colorato</div>' +
+          '<div class="sheet" id="sheet"></div>' +
+          formModalHtml();
+        makeOsmb((luogo) => {
+          state.selectedId = luogo.id;
+          paintState();
+          const sheet = document.getElementById("sheet");
+          sheet.classList.add("is-open");
+          sheet.innerHTML =
+            "<h2>" +
+            luogo.nome +
+            "</h2>" +
+            listaEventi(luogo) +
+            '<button type="button" id="c-proponi">Proponi un Evento in questo Luogo</button>' +
+            '<button type="button" class="ghost" id="c-nuovo">Proponi su un Luogo nuovo</button>';
+          document.getElementById("c-proponi").onclick = () =>
+            openForm("luogo:" + luogo.id);
+          document.getElementById("c-nuovo").onclick = () => openForm("luogo-nuovo");
+        });
+        document.getElementById("close-form").onclick = closeForm;
+      }
+
+      function render() {
+        destroyOsmb();
+        buildingTint.inCorso = {};
+        buildingTint.futuro = {};
+        buildingTint.toLuogo = {};
+        window.__buildingsAppear = emptyAppear(performance.now());
+        state.variant = currentVariant();
+        if (state.variant === "A") renderA();
+        else if (state.variant === "B") renderB();
+        else renderC();
+        paintState();
+      }
+
+      document.getElementById("prev").onclick = () => cycle(-1);
+      document.getElementById("next").onclick = () => cycle(1);
+      document.addEventListener("keydown", (e) => {
+        const t = e.target;
+        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+        if (e.key === "ArrowLeft") cycle(-1);
+        if (e.key === "ArrowRight") cycle(1);
+      });
+
+      render();
+    </script>
+  </body>
+</html>

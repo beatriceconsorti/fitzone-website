@@ -22,7 +22,7 @@ function setup() {
 
     // Nuvola di cubi distribuita in un cilindro largo: la camera li "attraversa"
     // mentre si scorre la pagina (continuità dell'intero sito).
-    for (let i = 0; i < 240; i++) {
+    for (let i = 0; i < 300; i++) {
         const side = random(1, 4);
         cubeState.cubes.push({
             x: (random() - 0.5) * 1100 * side,
@@ -56,7 +56,8 @@ function draw() {
 
     const t = millis() * 0.00018;
 
-    // Rotazione continua guidata dallo scroll (un giro per pagina)
+    // Spostamento continuo: ogni cubo ha una deriva propria (drift) più
+    // la rotazione della nuvola guidata dallo scroll
     rotateY(progress * TWO_PI * 1.5 + t);
     rotateX(sin(t * 0.6) * 0.12 + sin(progress * PI) * 0.18);
 
@@ -87,11 +88,11 @@ function draw() {
         }
 
         push();
-        translate(c.x, y, c.z);
+        translate(c.x + sin(t * 0.4 + c.phase) * 40, y, c.z + cos(t * 0.3 + c.phase) * 30);
         rotateX(t * c.speed * 30 + c.phase);
         rotateY(t * c.speed * 40 + c.phase * 2);
-        stroke(c.stroke[0], c.stroke[1], c.stroke[2], 70);
-        strokeWeight(1);
+        stroke(c.stroke[0], c.stroke[1], c.stroke[2], 95);
+        strokeWeight(1.2);
         const size = c.size * grow * boost;
         box(size, size, size);
         pop();

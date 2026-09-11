@@ -166,7 +166,7 @@ const gridParents = [
 // Elementi singoli che fanno fade-up (non in griglia)
 const singleElements = [
     '.about-card', '.stat-item', '.contact-info', '.contact-form',
-    '.about-feature', '.contact-detail'
+    '.about-feature', '.contact-detail', '.process-step', '.section-intro', '.works-cta'
 ];
 
 function revealGrid(parentSel, sel, delayStagger) {
@@ -240,7 +240,43 @@ document.querySelectorAll('.section').forEach(section => {
     titles.forEach(t => { t.style.opacity = 0; titleObserver.observe(t); });
 });
 
-// ---- Particelle: entra in scena ----
+// ---- Preview immagine che segue il cursore (progetti) ----
+const workPreview = document.getElementById('workPreview');
+let previewVisible = false;
+
+document.addEventListener('mousemove', (e) => {
+    if (!previewVisible || !workPreview) return;
+    workPreview.style.left = (e.clientX + 20) + 'px';
+    workPreview.style.top = (e.clientY + 20) + 'px';
+});
+
+document.querySelectorAll('.work-row').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        const src = row.getAttribute('data-img');
+        if (!src || !workPreview) return;
+        workPreview.src = src;
+        previewVisible = true;
+        anime({
+            targets: workPreview,
+            opacity: [0, 1],
+            scale: [0.8, 1],
+            rotate: [-4, -4],
+            duration: 350,
+            easing: 'easeOutExpo'
+        });
+    });
+    row.addEventListener('mouseleave', () => {
+        if (!previewVisible) return;
+        previewVisible = false;
+        anime({
+            targets: workPreview,
+            opacity: 0,
+            duration: 250,
+            easing: 'easeOutQuad'
+        });
+    });
+});
+
 // ---- Form handling ----
 const form = document.getElementById('contactForm');
 const formSuccess = document.getElementById('formSuccess');

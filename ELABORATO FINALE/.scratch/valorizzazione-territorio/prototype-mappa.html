@@ -171,19 +171,43 @@
       .tag-soon { color: var(--soon); }
 
       .luogo-card {
-        position: absolute; right: 18px; top: 18px; left: auto; bottom: auto; z-index: 550;
+        position: absolute; inset: 0; z-index: 700;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(63, 58, 54, 0.42);
+        padding: 20px;
+        border: 0;
+        width: auto;
+        max-height: none;
+        overflow: hidden;
+        box-shadow: none;
+      }
+      .luogo-card.is-open { display: flex; }
+      .luogo-pop {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.15fr) minmax(240px, 0.95fr);
+        width: min(54rem, 96%);
+        height: min(30rem, 84%);
         background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 4px;
         border-left: 4px solid var(--luogo, var(--event));
-        padding: 16px 16px 18px;
-        width: min(24rem, calc(100% - 36px));
-        display: none;
-        max-height: min(52%, calc(100% - 36px));
-        overflow: auto;
-        box-shadow: 0 10px 28px rgba(63, 58, 54, 0.12);
+        overflow: hidden;
+        box-shadow: 0 16px 40px rgba(63, 58, 54, 0.22);
       }
-      .luogo-card.is-open { display: block; }
+      .luogo-3d {
+        position: relative;
+        min-height: 0;
+        background: #efe8e0;
+      }
+      .luogo-3d .osmb-attribution,
+      .luogo-3d .attribution { display: none !important; }
+      .luogo-pop-copy {
+        padding: 18px 20px 20px;
+        overflow: auto;
+        min-height: 0;
+      }
       .luogo-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
       .luogo-card h2 { margin: 0; font-size: 1.28rem; font-weight: 400; line-height: 1.2; }
       .luogo-kind {
@@ -265,7 +289,11 @@
         .b-wrap { grid-template-columns: 1fr; grid-template-rows: 38% 1fr; }
         .b-side { border-right: 0; border-bottom: 1px solid var(--line); }
         .city-proponi { margin-left: 0; }
-        .luogo-card { right: 12px; top: auto; bottom: 16px; }
+        .luogo-pop {
+          grid-template-columns: 1fr;
+          grid-template-rows: 42% 1fr;
+          height: min(36rem, 90%);
+        }
       }
     </style>
   </head>
@@ -524,6 +552,7 @@
       const BUILDING_CACHE_KEY = "ascoli-buildings-v3";
       const buildingTint = { toLuogo: {}, color: {} };
       let osmb = null;
+      let previewOsmb = null;
       let onLuogoClick = null;
       let buildingTiles = null;
       let detailedLayer = null;
@@ -622,18 +651,21 @@
           p.f.properties.color = col;
           p.f.properties.roofColor = col;
           rememberBuilding(p.f.id, p.luogo);
+          const extras = [];
+          features.forEach((part) => {
+            if (String(part.id) !== fid + "-cupola" || !part.properties) return;
+            part.properties.color = col;
+            part.properties.roofColor = col;
+            rememberBuilding(part.id, p.luogo);
+            extras.push(JSON.parse(JSON.stringify(part)));
+          });
           eventMarkers.push({
             id: p.luogo.id,
             lng: p.c[0],
             lat: p.c[1],
             alt: Math.max(16, p.f.properties.height || 16) + 1,
             color: col,
-          });
-          features.forEach((part) => {
-            if (String(part.id) !== fid + "-cupola" || !part.properties) return;
-            part.properties.color = col;
-            part.properties.roofColor = col;
-            rememberBuilding(part.id, p.luogo);
+            features: [JSON.parse(JSON.stringify(p.f))].concat(extras),
           });
         });
         return fc;
@@ -703,14 +735,7 @@
           const h = hasInCorso(luogo) ? 28 : 22;
           const id = "ev-" + luogo.id;
           rememberBuilding(id, luogo);
-          eventMarkers.push({
-            id: luogo.id,
-            lng: luogo.lng,
-            lat: luogo.lat,
-            alt: h + 1,
-            color: color,
-          });
-          return {
+          const feat = {
             type: "Feature",
             id: id,
             properties: {
@@ -734,6 +759,15 @@
               ],
             },
           };
+          eventMarkers.push({
+            id: luogo.id,
+            lng: luogo.lng,
+            lat: luogo.lat,
+            alt: h + 1,
+            color: color,
+            features: [JSON.parse(JSON.stringify(feat))],
+          });
+          return feat;
         });
         if (!features.length) return;
         eventLayer = osmb.addGeoJSON(
@@ -1087,18 +1121,32 @@
       function showLuogoCard(luogo) {
         const card = document.getElementById("luogo-card");
         if (!card) return;
+        destroyPreview();
         card.style.setProperty("--luogo", coloreLuogo(luogo));
         card.classList.add("is-open");
         const kind = luogo.suolo
           ? "<p class='luogo-kind'>" + suoloLabel(luogo.suolo) + "</p>"
           : "";
         card.innerHTML =
+          '<div class="luogo-pop" id="luogo-pop">' +
+          '<div class="luogo-3d" id="luogo-3d"></div>' +
+          '<div class="luogo-pop-copy">' +
           "<div class='luogo-card-head'><div><h2>" +
           luogo.nome +
           "</h2>" +
           kind +
           "</div><button type='button' class='luogo-close' id='luogo-close' aria-label='Chiudi'>×</button></div>" +
-          listaEventi(luogo);
+          listaEventi(luogo) +
+          "</div></div>";
+        card.onclick = (e) => {
+          if (e.target === card) {
+            hideLuogoCard();
+            state.selectedId = null;
+            paintState();
+          }
+        };
+        const pop = document.getElementById("luogo-pop");
+        if (pop) pop.onclick = (e) => e.stopPropagation();
         const close = document.getElementById("luogo-close");
         if (close) {
           close.onclick = () => {
@@ -1107,15 +1155,74 @@
             paintState();
           };
         }
+        window.requestAnimationFrame(function () {
+          showLuogoPreview(luogo);
+        });
       }
 
       function hideLuogoCard() {
+        destroyPreview();
         const card = document.getElementById("luogo-card");
         if (card) {
           card.classList.remove("is-open");
           card.style.removeProperty("--luogo");
           card.innerHTML = "";
+          card.onclick = null;
         }
+      }
+
+      function destroyPreview() {
+        if (previewOsmb && typeof previewOsmb.destroy === "function") {
+          try {
+            previewOsmb.destroy();
+          } catch (err) {}
+        }
+        previewOsmb = null;
+      }
+
+      function showLuogoPreview(luogo) {
+        const box = document.getElementById("luogo-3d");
+        if (!box || typeof OSMBuildings !== "function") return;
+        const mark = eventMarkers.filter(function (m) {
+          return m.id === luogo.id;
+        })[0];
+        const feats =
+          mark && mark.features && mark.features.length
+            ? mark.features
+            : null;
+        const lat = mark ? mark.lat : luogo.lat;
+        const lng = mark ? mark.lng : luogo.lng;
+        const color = coloreLuogo(luogo);
+        previewOsmb = new OSMBuildings({
+          container: "luogo-3d",
+          position: { latitude: lat, longitude: lng },
+          zoom: 18.6,
+          minZoom: 17,
+          maxZoom: 20,
+          tilt: 52,
+          rotation: -28,
+          effects: ["shadows"],
+          backgroundColor: "#efe8e0",
+          fogColor: "#e8e0d8",
+          highlightColor: color,
+          style: { color: COLOR_CITTA },
+          attribution: " ",
+        });
+        previewOsmb.addMapTiles("https://tile-a.openstreetmap.fr/hot/{z}/{x}/{y}.png");
+        if (feats) {
+          previewOsmb.addGeoJSON(
+            { type: "FeatureCollection", features: feats },
+            { fadeIn: false }
+          );
+        }
+        previewOsmb.setTilt(52);
+        previewOsmb.setRotation(-28);
+        previewOsmb.setZoom(18.6);
+        window.setTimeout(function () {
+          if (!previewOsmb) return;
+          previewOsmb.setSize(box.clientWidth, box.clientHeight);
+          previewOsmb.setPosition({ latitude: lat, longitude: lng });
+        }, 80);
       }
 
       function makeOsmb(onClick) {
@@ -1189,6 +1296,7 @@
         eventMarkers = [];
         const marks = document.getElementById("event-marks");
         if (marks) marks.innerHTML = "";
+        destroyPreview();
         if (osmb && typeof osmb.destroy === "function") {
           try {
             osmb.destroy();

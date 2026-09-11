@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ascoli Piceno</title>
+    <link rel="stylesheet" href="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css" />
+    <link rel="stylesheet" href="css/sito.css" />
+  </head>
+  <body>
+    <header class="city-bar">
+      <div class="city-bar-lead">
+        <h1>Ascoli Piceno</h1>
+        <p class="city-bar-line">Cosa accade in questi giorni</p>
+        <ul class="legend" aria-label="Legenda">
+          <li><i class="swatch swatch-now" aria-hidden="true"></i> In corso</li>
+          <li><i class="swatch swatch-soon" aria-hidden="true"></i> In arrivo</li>
+          <li><i class="swatch swatch-past" aria-hidden="true"></i> Passato</li>
+          <li><i class="swatch swatch-none" aria-hidden="true"></i> Nessun Evento</li>
+        </ul>
+      </div>
+      <button type="button" class="city-proponi" id="proponi">Proponi un Evento</button>
+    </header>
+
+    <div id="app">
+      <div class="map-stage">
+        <div id="map"></div>
+        <div class="event-marks" id="event-marks"></div>
+      </div>
+      <div class="luogo-card" id="luogo-card"></div>
+      <div class="modal" id="form-modal">
+        <div class="modal-card">
+          <h2>Proponi un Evento</h2>
+          <p class="form-lead">La Proposta arriva al Creatore. Non è ancora un Evento sulla mappa.</p>
+          <form id="proposta-form" novalidate>
+            <input type="checkbox" name="botcheck" style="display: none" tabindex="-1" autocomplete="off" />
+            <div class="form-row">
+              <label for="titolo">Titolo dell’Evento</label>
+              <input id="titolo" name="titolo" type="text" required maxlength="120" />
+            </div>
+            <div class="form-row">
+              <label for="giorno">Giorno</label>
+              <input id="giorno" name="giorno" type="date" required />
+            </div>
+            <div class="form-row">
+              <label for="testo">Testo breve</label>
+              <textarea id="testo" name="testo" required maxlength="500"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="nome">Il tuo nome</label>
+              <input id="nome" name="nome" type="text" required maxlength="80" />
+            </div>
+            <div class="form-row">
+              <label for="email">La tua email</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+            <p class="lbl">Luogo</p>
+            <div class="form-choice">
+              <label>
+                <input type="radio" name="luogo-modo" value="esistente" checked />
+                Già in mappa
+              </label>
+              <label>
+                <input type="radio" name="luogo-modo" value="nuovo" />
+                Luogo nuovo
+              </label>
+            </div>
+            <div id="luogo-esistente-campi" class="form-extra is-on">
+              <div class="form-row">
+                <label for="luogo-elenco">Scegli il Luogo</label>
+                <select id="luogo-elenco" name="luogo-elenco" required></select>
+              </div>
+            </div>
+            <div id="luogo-nuovo-campi" class="form-extra">
+              <div class="form-row">
+                <label for="luogo-nome">Nome del Luogo</label>
+                <input id="luogo-nome" name="luogo-nome" type="text" maxlength="120" />
+              </div>
+              <div class="form-row">
+                <label for="luogo-dove">Dove sta</label>
+                <textarea id="luogo-dove" name="luogo-dove" maxlength="400" placeholder="Indirizzo, piazza, frazione…"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit">Invia la Proposta</button>
+              <button type="button" id="chiudi-form">Chiudi</button>
+            </div>
+            <p class="form-msg" id="proposta-msg" role="status"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dati.js"></script>
+    <script src="js/persistenza.js"></script>
+    <script src="js/mappa.js"></script>
+    <script src="js/visitatore.js"></script>
+  </body>
+</html>

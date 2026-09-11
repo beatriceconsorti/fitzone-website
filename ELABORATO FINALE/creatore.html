@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Ascoli Piceno</title>
+    <link rel="stylesheet" href="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css" />
+    <link rel="stylesheet" href="css/sito.css" />
+  </head>
+  <body>
+    <header class="city-bar">
+      <div class="city-bar-lead">
+        <h1>Ascoli Piceno</h1>
+        <p class="city-bar-line">Revisione</p>
+        <ul class="legend" aria-label="Legenda">
+          <li><i class="swatch swatch-now" aria-hidden="true"></i> In corso</li>
+          <li><i class="swatch swatch-soon" aria-hidden="true"></i> In arrivo</li>
+          <li><i class="swatch swatch-past" aria-hidden="true"></i> Passato</li>
+          <li><i class="swatch swatch-none" aria-hidden="true"></i> Nessun Evento</li>
+        </ul>
+      </div>
+    </header>
+
+    <div id="app" class="creatore-wrap">
+      <div class="creatore-map">
+        <div class="map-stage">
+          <div id="map"></div>
+          <div class="event-marks" id="event-marks"></div>
+        </div>
+        <div class="luogo-card" id="luogo-card"></div>
+      </div>
+      <aside class="creatore-side">
+        <h2>Metti un Evento</h2>
+        <p class="creatore-note">
+          La mail (o la dashboard Web3Forms) è l’inbox. Qui si copia ciò che si accetta. Rifiutare è non copiare. Ciò che salvi vive in questo browser.
+        </p>
+        <form id="c-form">
+          <input type="hidden" id="c-evento-id" />
+          <div class="form-row">
+            <label for="c-titolo">Titolo dell’Evento</label>
+            <input id="c-titolo" type="text" required maxlength="120" />
+          </div>
+          <div class="form-row">
+            <label for="c-giorno">Giorno</label>
+            <input id="c-giorno" type="date" required />
+          </div>
+          <div class="form-row">
+            <label for="c-testo">Testo breve</label>
+            <textarea id="c-testo" required maxlength="500"></textarea>
+          </div>
+          <p class="lbl">Luogo</p>
+          <div class="form-choice">
+            <label>
+              <input type="radio" name="c-luogo-modo" value="esistente" checked />
+              Già in mappa
+            </label>
+            <label>
+              <input type="radio" name="c-luogo-modo" value="nuovo" />
+              Luogo nuovo
+            </label>
+          </div>
+          <div id="c-luogo-esistente" class="form-extra is-on">
+            <div class="form-row">
+              <label for="c-luogo">Scegli il Luogo</label>
+              <select id="c-luogo" required></select>
+            </div>
+          </div>
+          <div id="c-luogo-nuovo" class="form-extra">
+            <div class="form-row">
+              <label for="c-luogo-nome">Nome del Luogo</label>
+              <input id="c-luogo-nome" type="text" maxlength="120" />
+            </div>
+            <div class="form-row">
+              <label for="c-luogo-suolo">Suolo (facoltativo)</label>
+              <input id="c-luogo-suolo" type="text" maxlength="40" placeholder="piazza, chiesa, frazione…" />
+            </div>
+            <p class="coord-hint" id="coord-hint"></p>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="c-salva">Metti sulla mappa</button>
+            <button type="button" id="c-annulla">Annulla</button>
+          </div>
+          <p class="form-msg" id="c-msg" role="status"></p>
+        </form>
+
+        <h3>Eventi in questo browser</h3>
+        <ul class="elenco" id="elenco-eventi"></ul>
+
+        <h3>Luoghi aggiunti in questo browser</h3>
+        <ul class="elenco" id="elenco-luoghi"></ul>
+      </aside>
+    </div>
+
+    <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/dati.js"></script>
+    <script src="js/persistenza.js"></script>
+    <script src="js/mappa.js"></script>
+    <script src="js/creatore.js"></script>
+  </body>
+</html>

@@ -13,12 +13,24 @@ Il comune di Ascoli Piceno, centro storico e frazioni, di cui il sito racconta i
 _Avoid_: area, zona, regione, territorio generico, Ascoli da solo come nome del comune
 
 **Luogo**:
-Un punto persistente del Territorio, visibile sulla mappa indipendentemente dalle date. Il Visitatore lo legge sul pin (popup), non su una pagina a parte.
+Un punto persistente del Territorio, visibile sulla mappa indipendentemente dalle date. Il Visitatore lo legge sul popup, non su una pagina a parte.
 _Avoid_: pin, marker, location, POI, scheda, pagina di dettaglio
 
 **Evento**:
-Un avvenimento con un tempo, sempre legato a un Luogo.
-_Avoid_: attività, iniziativa, cosa da fare
+Un avvenimento in un giorno, sempre legato a un Luogo. Non è una serie né una ricorrenza.
+_Avoid_: attività, iniziativa, cosa da fare, ricorrenza
+
+**In corso**:
+Un Evento la cui data è il giorno in cui il Visitatore guarda la mappa.
+_Avoid_: live, happening, ongoing
+
+**In arrivo**:
+Un Evento con data successiva a oggi.
+_Avoid_: upcoming, scheduled, futuro da solo
+
+**Passato**:
+Un Evento la cui data è precedente a oggi. Resta sul popup del Luogo; non si archivia e non sparisce da solo.
+_Avoid_: archivio, storico, scaduto
 
 **Proposta**:
 La richiesta di un Evento inviata da un Visitatore. Si attacca a un Luogo già in mappa oppure descrive un Luogo nuovo insieme a quell’Evento. Non è ancora né Evento né Luogo finché il Creatore non l'ha accettata.

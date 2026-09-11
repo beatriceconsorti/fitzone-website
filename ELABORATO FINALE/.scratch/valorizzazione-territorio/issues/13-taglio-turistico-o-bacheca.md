@@ -1,7 +1,7 @@
 # Taglio turistico o bacheca civica
 
 Type: grilling
-Status: open
+Status: resolved
 
 ## Question
 
@@ -16,3 +16,9 @@ Questo fissa tone of voice e, a valle, colori/copy. Non è il layout della mappa
 Scenario: il titolo in tab del browser. “Scopri Ascoli Piceno” o “Eventi e Luoghi di Ascoli Piceno”?
 
 Raccomandazione: **3**. La valorizzazione del Territorio non è né solo promozione né solo albo; le Proposte dei Visitatori sono il pezzo civico, i Luoghi veri il pezzo da scoprire.
+
+## Answer
+
+**Ibrido.** La mappa si esplora (travertino, volumi, pallini); le Proposte sono di chi vive il Territorio. Né depliant né albo.
+
+Tab e titolo: **Ascoli Piceno**. Sotto: **Cosa accade in questi giorni**. Niente “Scopri…”, niente “Luoghi ed Eventi di…” come nome del Sito.

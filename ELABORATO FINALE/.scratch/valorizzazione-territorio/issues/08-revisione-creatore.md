@@ -1,7 +1,7 @@
 # Come il Creatore revisiona le Proposte
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: 03, 06
 
 ## Question
@@ -19,3 +19,15 @@ La vista Creatore si raggiunge dal percorso riservato deciso in [Come si autenti
 Scenario: il Creatore è al telefono, legge la mail, non ha il laptop. L’Evento resta in attesa finché non apre quella vista sul browser dove vive lo storage.
 
 Raccomandazione: **3** (mail o dashboard come inbox; vista Creatore per pubblicare in localStorage), allineata a una destinazione-demo. Non costruire una coda “vera” sul sito senza lo store deciso in [Chi vede un Evento dopo la Revisione](06-chi-vede-evento-pubblicato.md).
+
+## Answer
+
+**Ibrido.** La mail Web3Forms (o la dashboard, fuori dal Sito) è l’inbox. Il Creatore apre la vista sul percorso riservato e copia i campi: così l’Evento (e, se nuovo, il Luogo) entra nel suo `localStorage` e compare sulla sua mappa. Rifiutare è non copiare: niente coda e niente pulsante di rifiuto sul Sito.
+
+Nella vista Creatore:
+
+- Luogo nuovo: click sulla mappa 3D per piazzare il punto; il testo della Proposta orienta.
+- Può anche inserire un Evento (e un Luogo) **senza** Proposta, stessi campi.
+- Vede l’elenco di ciò che ha accettato: può correggere o togliere.
+
+L’Evento resta in attesa finché non apre quella vista sul browser dove vive lo storage. Non compare sui dispositivi degli altri Visitatori.

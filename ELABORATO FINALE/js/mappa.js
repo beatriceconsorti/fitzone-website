@@ -20,6 +20,7 @@ Sito.mappa = {
   featureMeta: {},
   loadedBoxes: [],
   overpassBusy: false,
+  pendingBox: null,
   panTimer: null,
   onLuogo: null,
   onMappaClick: null,
@@ -323,6 +324,35 @@ function syncEventMarks() {
   }
 }
 
+function featuresNearCamera(fc, half) {
+  var m = Sito.mappa;
+  if (!m.osmb || !fc || !fc.features) return { type: "FeatureCollection", features: [] };
+  var pos = m.osmb.getPosition && m.osmb.getPosition();
+  if (!pos) return fc;
+  half = half || 0.008;
+  var out = [];
+  var seen = {};
+  fc.features.forEach(function (f) {
+    var ring = f.geometry && f.geometry.coordinates && f.geometry.coordinates[0];
+    if (!ring) return;
+    var c = ringCentroid(ring);
+    if (Math.abs(c[1] - pos.latitude) > half || Math.abs(c[0] - pos.longitude) > half) {
+      return;
+    }
+    out.push(f);
+    if (f.id != null) seen[String(f.id)] = true;
+  });
+  m.eventMarkers.forEach(function (mark) {
+    (mark.features || []).forEach(function (f) {
+      var id = String(f.id);
+      if (seen[id]) return;
+      seen[id] = true;
+      out.push(f);
+    });
+  });
+  return { type: "FeatureCollection", features: out };
+}
+
 function showDetailedBuildings(fc) {
   var m = Sito.mappa;
   if (!m.osmb || !fc || !fc.features || !fc.features.length) return;
@@ -333,8 +363,20 @@ function showDetailedBuildings(fc) {
     } catch (err) {}
   }
   var painted = paintEventColors(JSON.parse(JSON.stringify(fc)));
-  m.detailedLayer = m.osmb.addGeoJSON(painted, { fadeIn: false });
+  var visible = featuresNearCamera(painted, 0.0085);
+  if (!visible.features.length) {
+    m.detailedLayer = null;
+    mountEventMarks();
+    return;
+  }
+  m.detailedLayer = m.osmb.addGeoJSON(visible, { fadeIn: false });
   mountEventMarks();
+}
+
+function remountVisibleBuildings() {
+  var m = Sito.mappa;
+  if (!m.osmb || !m.cachedFc || !m.cachedFc.features || !m.cachedFc.features.length) return;
+  showDetailedBuildings(m.cachedFc);
 }
 
 function addEventBeacons() {
@@ -638,36 +680,16 @@ function rememberBox(box) {
 
 function viewBox() {
   var m = Sito.mappa;
-  if (!m.osmb || typeof m.osmb.getBounds !== "function") return null;
-  var b = m.osmb.getBounds();
-  if (!b || !b.length) return null;
-  var lats = [];
-  var lngs = [];
-  b.forEach(function (p) {
-    if (!p) return;
-    lats.push(p.latitude);
-    lngs.push(p.longitude);
-  });
-  if (!lats.length) return null;
-  var pad = 0.0014;
-  var box = {
-    s: Math.min.apply(null, lats) - pad,
-    n: Math.max.apply(null, lats) + pad,
-    w: Math.min.apply(null, lngs) - pad,
-    e: Math.max.apply(null, lngs) + pad,
+  if (!m.osmb || typeof m.osmb.getPosition !== "function") return null;
+  var pos = m.osmb.getPosition();
+  if (!pos || pos.latitude == null || pos.longitude == null) return null;
+  var half = 0.0055;
+  return {
+    s: pos.latitude - half,
+    n: pos.latitude + half,
+    w: pos.longitude - half,
+    e: pos.longitude + half,
   };
-  var maxSpan = 0.02;
-  if (box.n - box.s > maxSpan) {
-    var midLat = (box.n + box.s) / 2;
-    box.s = midLat - maxSpan / 2;
-    box.n = midLat + maxSpan / 2;
-  }
-  if (box.e - box.w > maxSpan) {
-    var midLng = (box.e + box.w) / 2;
-    box.w = midLng - maxSpan / 2;
-    box.e = midLng + maxSpan / 2;
-  }
-  return box;
 }
 
 function boxCovered(box) {
@@ -714,40 +736,57 @@ function fetchWithTimeout(url, ms) {
 
 function loadOverpassBox(box, writeCache) {
   var m = Sito.mappa;
-  if (!m.osmb || !box || m.overpassBusy) return;
+  if (!m.osmb || !box) return;
+  if (m.overpassBusy) {
+    m.pendingBox = { box: box, writeCache: !!writeCache };
+    return;
+  }
   m.overpassBusy = true;
+  m.pendingBox = null;
   var q = overpassQuery(box);
   var urls = [
     "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(q),
     "https://overpass.kumi.systems/api/interpreter?data=" + encodeURIComponent(q),
     "https://overpass.osm.ch/api/interpreter?data=" + encodeURIComponent(q),
   ];
+  function finish() {
+    m.overpassBusy = false;
+    var pending = m.pendingBox;
+    m.pendingBox = null;
+    if (pending && pending.box && !boxCovered(pending.box)) {
+      loadOverpassBox(pending.box, pending.writeCache);
+    }
+  }
   function pull(i) {
     if (i >= urls.length || !m.osmb) {
-      m.overpassBusy = false;
+      finish();
       return;
     }
-    fetchWithTimeout(urls[i], 12000)
+    fetchWithTimeout(urls[i], 14000)
       .then(function (r) {
         if (!r.ok) throw new Error("overpass");
         return r.json();
       })
       .then(function (data) {
-        m.overpassBusy = false;
-        if (!m.osmb) return;
+        if (!m.osmb) {
+          finish();
+          return;
+        }
         var features = overpassToFeatures(data);
         if (!features.length) {
           rememberBox(box);
+          finish();
           return;
         }
-        mergeBuildingFeatures(features);
+        var added = mergeBuildingFeatures(features);
         rememberBox(box);
-        if (writeCache) writeBuildingCache(m.cachedFc);
-        showDetailedBuildings(m.cachedFc);
+        if (writeCache || added) writeBuildingCache(m.cachedFc);
+        if (added || !m.detailedLayer) showDetailedBuildings(m.cachedFc);
+        finish();
       })
       .catch(function () {
         if (i + 1 < urls.length) pull(i + 1);
-        else m.overpassBusy = false;
+        else finish();
       });
   }
   pull(0);
@@ -1038,6 +1077,7 @@ Sito.avviaMappa = function (opts) {
   m.osmb.setRotation(Sito.MAP_ROT);
   m.osmb.setZoom(Sito.MAP_ZOOM);
   m.loadedBoxes = [];
+  m.pendingBox = null;
   var cached = readBuildingCache();
   if (cached) {
     m.cachedFc = cached;
@@ -1047,10 +1087,14 @@ Sito.avviaMappa = function (opts) {
     addEventBeacons();
     loadDetailedModels();
   }
+  window.setTimeout(loadVisibleBuildings, 600);
   m.osmb.on("change", function () {
     syncEventMarks();
     if (m.panTimer) window.clearTimeout(m.panTimer);
-    m.panTimer = window.setTimeout(loadVisibleBuildings, 480);
+    m.panTimer = window.setTimeout(function () {
+      remountVisibleBuildings();
+      loadVisibleBuildings();
+    }, 220);
   });
   m.osmb.on("resize", syncEventMarks);
   m.osmb.on("pointerup", function (e) {
@@ -1110,6 +1154,7 @@ Sito.distruggiMappa = function () {
   m.eventMarkers = [];
   m.loadedBoxes = [];
   m.overpassBusy = false;
+  m.pendingBox = null;
   if (m.panTimer) window.clearTimeout(m.panTimer);
   m.panTimer = null;
   var marks = document.getElementById(m.marksId);
